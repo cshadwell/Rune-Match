@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rune Match — Learn the Cipher</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#111823;
+      --card:#0f1722;
+      --card2:#152132;
+      --ink:#e7eef8;
+      --muted:#9fb0c5;
+      --good:#7CFFB2;
+      --bad:#FF6B6B;
+      --gold:#f0d58a;
+      --shadow: 0 8px 24px rgba(0,0,0,.35);
+      --radius: 14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 20% 0%, #172437 0%, var(--bg) 55%);
+      color:var(--ink);
+    }
+    header{
+      padding:18px 18px 6px 18px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    h1{
+      margin:0 0 6px 0;
+      font-size: clamp(18px, 3vw, 26px);
+      letter-spacing:.3px;
+      font-weight:700;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:12px 18px 22px 18px;
+      display:grid;
+      grid-template-columns: 1.7fr .65fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+    .boardPanel, .keyPanel{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panelHead{
+      padding:12px 12px 10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 14px;
+      align-items:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:6px 10px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: 999px;
+    }
+        button{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      color:var(--ink);
+      padding:8px 10px;
+      border-radius: 10px;
+      font-weight:600;
+      letter-spacing:.2px;
+    }
+    button:hover{ background: rgba(255,255,255,.06); }
+    button:active{ transform: translateY(1px); }
+    .grid{
+      padding:12px;
+      display:grid;
+      gap:10px;
+      grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
+      align-content:start;
+    }
+    @media (max-width: 420px){
+      .grid{ grid-template-columns: repeat(auto-fit, minmax(74px, 1fr)); gap:8px; }
+    }
+    .card{
+      position:relative;
+      width:100%;
+      aspect-ratio: 1/1;
+      perspective: 900px;
+    }
+    .inner{
+      position:absolute; inset:0;
+      border-radius: 14px;
+      transform-style: preserve-3d;
+      transition: transform .22s ease;
+    }
+    .card.flipped .inner{ transform: rotateY(180deg); }
+    .face{
+      position:absolute; inset:0;
+      border-radius: 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      backface-visibility: hidden;
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 4px 12px rgba(0,0,0,.25);
+      user-select:none;
+    }
+    .front{
+      background: radial-gradient(140px 140px at 30% 20%, rgba(255,255,255,.10), rgba(255,255,255,.03)),
+                  linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.08));
+    }
+    .back{
+      transform: rotateY(180deg);
+      background: radial-gradient(160px 160px at 30% 20%, rgba(255,255,255,.09), rgba(255,255,255,.02)),
+                  linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.12));
+    }
+    .sigil{
+      width: 70%;
+      height: 70%;
+    }
+    .sigil text{
+      font-size: 54px;
+      font-family: "Noto Sans Runic","Segoe UI Symbol","Apple Symbols","Symbola","Noto Sans Symbols2",serif;
+      fill: var(--ink);
+      dominant-baseline: middle;
+      text-anchor: middle;
+    }
+    .seal{
+      position:absolute;
+      inset:10px;
+      border-radius: 12px;
+      border:1px dashed rgba(255,255,255,.12);
+      pointer-events:none;
+      opacity:.65;
+    }
+    .card.matched .face{
+      border-color: rgba(124,255,178,.55);
+      box-shadow: 0 0 0 2px rgba(124,255,178,.16), 0 8px 22px rgba(0,0,0,.35);
+    }
+    .card.matched .seal{ opacity:.9; border-color: rgba(124,255,178,.35); }
+    .card.locked{ pointer-events:none; opacity:.92; }
+    .hint{
+      padding: 12px 12px 14px 12px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top:1px solid rgba(255,255,255,.06);
+      background: rgba(0,0,0,.12);
+      line-height: 1.35;
+    }
+    .keyBody{
+      padding:12px;
+    }
+    .keyGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 980px){
+      .keyGrid{ grid-template-columns: 1fr; }
+    }
+    .keyRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 10px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.20);
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .keyLine{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .kL{
+      font-weight: 1000;
+      letter-spacing: .9px;
+      font-size: 18px;
+      color: var(--gold);
+    }
+    .kG{
+      font-size: 22px;
+      font-family: "Noto Sans Runic","Segoe UI Symbol","Apple Symbols","Symbola",serif;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+                                .unlocked{
+      border-color: rgba(240,213,138,.40);
+      background: rgba(240,213,138,.08);
+    }
+    .unlocked     .footerNote{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+  
+    /* Completion overlay */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.78);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index: 9999;
+    }
+    .overlay.show{ display:flex; }
+    .overlayCard{
+      width:min(980px, 100%);
+      max-height: 92vh;
+      overflow:auto;
+      border-radius: 18px;
+      background: radial-gradient(900px 520px at 25% 10%, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+    }
+    .overlayHead{
+      position:sticky;
+      top:0;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      padding:14px 14px 12px 14px;
+      background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.10));
+      border-bottom:1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(6px);
+    }
+    .overlayTitle{
+      margin:0;
+      font-size: clamp(18px, 2.8vw, 24px);
+      font-weight: 900;
+      letter-spacing:.3px;
+      color: var(--gold);
+    }
+    .overlaySub{
+      margin:4px 0 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      max-width: 60ch;
+    }
+    .overlayClose{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.28);
+      color: var(--ink);
+      padding:10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      letter-spacing:.2px;
+      line-height: 1;
+    }
+    .overlayClose:hover{ background: rgba(255,255,255,.06); }
+    .keyFull{
+      padding:14px;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+      gap:12px;
+    }
+    .keyTile{
+      border-radius: 14px;
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.08);
+      padding:12px 10px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      min-height: 110px;
+    }
+    .keyTile .L{
+      font-size: 18px;
+      font-weight: 1000;
+      letter-spacing: .8px;
+      color: var(--ink);
+    }
+    .keyTile .G{
+      font-size: 34px;
+      font-family: "Noto Sans Runic","Segoe UI Symbol","Apple Symbols","Symbola",serif;
+      color: var(--ink);
+      line-height: 1;
+    }
+    @media (max-width: 420px){
+      .keyFull{ grid-template-columns: repeat(auto-fit, minmax(98px, 1fr)); gap:10px; }
+      .keyTile{ min-height: 98px; }
+      .keyTile .G{ font-size: 30px; }
+    }
+
+  </style>
+</head>
+<body>
+<header>
+  <h1>Rune Match — Learn the Cipher</h1>
+  <p class="sub">Flip two tiles. If they match, that glyph unlocks a letter in the Key. Find all 26 letters to complete the cipher.</p>
+</header>
+
+<div class="wrap">
+  <section class="boardPanel">
+    <div class="panelHead">
+      <div class="stats">
+        <span class="pill">Moves: <strong id="moves">0</strong></span>
+        <span class="pill">Matches: <strong id="matches">0</strong> / 26</span>
+      </div>
+    </div>
+<div id="grid" class="grid" aria-label="Matching board"></div>
+    <div class="hint" id="hint">
+      Tip: This game uses <em>glyphs</em> (runes). When you find a matching pair, the Key panel will reveal which <strong>letter</strong> that glyph represents.
+      If you ever see empty boxes instead of runes, the device font is missing runic glyphs—tell Collin and he can swap in drawn SVG images.
+    </div>
+  </section>
+
+  <aside class="keyPanel">
+    <div class="panelHead">
+      <div class="stats">
+        <span class="pill">Key</span>
+        <span class="pill">Unlocked: <strong id="unlockedCount">0</strong> / 26</span>
+      </div>
+    </div>
+    <div class="keyBody">
+      <div id="keyGrid" class="keyGrid"></div>
+      <div class="footerNote">
+        Hosting note: if you want a QR code, host this single HTML file somewhere public (Google Sites, GitHub Pages, Netlify, etc.), then generate a QR code that points to the URL.
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div id="completeOverlay" class="overlay" role="dialog" aria-modal="true" aria-label="Cipher key">
+  <div class="overlayCard">
+    <div class="overlayHead">
+      <div>
+        <h2 class="overlayTitle">Cipher Complete — A–Z Key</h2>
+        <p class="overlaySub">Use this key to decode the message. Each letter is shown above its glyph.</p>
+      </div>
+      <button id="closeOverlay" class="overlayClose" aria-label="Close">Close</button>
+    </div>
+    <div id="fullKey" class="keyFull"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // --- Cipher map (your chosen glyphs)
+  const GLYPH = {
+    A:"ᛉ", B:"ᚦ", C:"ᛞ", D:"ᚸ", E:"ᛇ", F:"ᚾ", G:"ᛈ", H:"ᚢ", I:"ᛃ", J:"ᛟ", K:"ᚲ", L:"ᛏ", M:"ᚠ",
+    N:"ᛜ", O:"ᚨ", P:"ᛠ", Q:"ᛗ", R:"ᛣ", S:"ᛊ", T:"ᚷ", U:"ᛚ", V:"ᛁ", W:"ᛥ", X:"ᚺ", Y:"ᛡ", Z:"ᚫ"
+  };
+  const LETTERS = Object.keys(GLYPH);
+
+  // --- Audio (no external files)
+  const AudioFX = (() => {
+    let ctx = null;
+    const ensure = () => ctx ?? (ctx = new (window.AudioContext || window.webkitAudioContext)());
+    const now = () => ensure().currentTime;
+
+    function tone({type="sine", freq=440, dur=0.12, gain=0.06, detune=0, ramp=true}) {
+      const c = ensure();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      o.detune.value = detune;
+      g.gain.value = 0.0001;
+      o.connect(g);
+      g.connect(c.destination);
+      const t0 = now();
+      o.start(t0);
+      if (ramp) {
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(gain, t0 + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      } else {
+        g.gain.setValueAtTime(gain, t0);
+        g.gain.setValueAtTime(0.0001, t0 + dur);
+      }
+      o.stop(t0 + dur + 0.01);
+    }
+
+    function swish() {
+      // quick upward glide = "flip"
+      const c = ensure();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = "triangle";
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(c.destination);
+      const t0 = now();
+      o.frequency.setValueAtTime(260, t0);
+      o.frequency.exponentialRampToValueAtTime(820, t0 + 0.12);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.06, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.14);
+      o.start(t0); o.stop(t0 + 0.16);
+    }
+
+    function buzz() {
+      // low short "wrong"
+      tone({type:"sawtooth", freq:110, dur:0.18, gain:0.05});
+      tone({type:"sawtooth", freq:92, dur:0.18, gain:0.04, detune:-20});
+    }
+
+    function ding() {
+      // pleasant "correct"
+      tone({type:"sine", freq:784, dur:0.14, gain:0.05});
+      tone({type:"sine", freq:1046.5, dur:0.12, gain:0.04, detune:5});
+    }
+
+    function brassNote(freq, startOffset){
+      // "brassy" note: saw + lowpass filter + fast attack, short decay
+      const c = ensure();
+      const t0 = now() + (startOffset || 0);
+
+      const o1 = c.createOscillator();
+      const o2 = c.createOscillator();
+      const g = c.createGain();
+      const f = c.createBiquadFilter();
+
+      o1.type = "sawtooth";
+      o2.type = "square";
+      o1.frequency.setValueAtTime(freq, t0);
+      o2.frequency.setValueAtTime(freq * 2, t0);
+
+      f.type = "lowpass";
+      f.frequency.setValueAtTime(1400, t0);
+      f.frequency.exponentialRampToValueAtTime(800, t0 + 0.18);
+
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.10, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28);
+
+      o1.connect(f); o2.connect(f);
+      f.connect(g); g.connect(c.destination);
+
+      // tiny pitch "blat" for trumpet feel
+      o1.frequency.exponentialRampToValueAtTime(freq * 0.995, t0 + 0.10);
+
+      o1.start(t0); o2.start(t0);
+      o1.stop(t0 + 0.30); o2.stop(t0 + 0.30);
+    }
+
+    function fanfare(){
+      // Short celebratory fanfare: C5–E5–G5–C6 with a little ending flourish
+      // Frequencies (Hz): C5 523.25, E5 659.25, G5 783.99, C6 1046.5, G5 783.99, E5 659.25
+      const seq = [
+        {f:523.25, t:0.00},
+        {f:659.25, t:0.16},
+        {f:783.99, t:0.32},
+        {f:1046.5, t:0.48},
+        {f:783.99, t:0.72},
+        {f:659.25, t:0.88},
+        {f:783.99, t:1.04},
+      ];
+      seq.forEach(n => brassNote(n.f, n.t));
+    }
+
+    return { swish, buzz, ding, fanfare, resume: () => ensure().resume() };
+  })();
+
+  // --- DOM
+  const gridEl = document.getElementById("grid");
+  const movesEl = document.getElementById("moves");
+  const matchesEl = document.getElementById("matches");
+  const unlockedCountEl = document.getElementById("unlockedCount");
+  const keyGridEl = document.getElementById("keyGrid");
+  const overlayEl = document.getElementById("completeOverlay");
+  const fullKeyEl = document.getElementById("fullKey");
+  const closeOverlayBtn = document.getElementById("closeOverlay");
+
+  // --- Game state
+  let deck = [];
+  let first = null;
+  let second = null;
+  let lock = false;
+  let moves = 0;
+  let matches = 0;
+  const unlocked = new Set();
+
+  // --- Helpers
+  function safeId(){
+    try{
+      if (crypto && typeof crypto.randomUUID === "function") return safeId();
+    }catch(e){}
+    // Fallback for environments where WebCrypto/randomUUID is unavailable (common on some mobile file viewers)
+    return "id-" + Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
+  }
+
+  function shuffle(arr){
+    for (let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function makeSigilSVG(char){
+    // Inline SVG = "image-like" but stays crisp and scalable
+    return `
+      <svg class="sigil" viewBox="0 0 100 100" role="img" aria-label="glyph">
+        <text x="50" y="54">${char}</text>
+      </svg>
+    `;
+  }
+
+  function buildKeyPanel(){
+    // Start empty. Rows appear only when a match is found.
+    keyGridEl.innerHTML = "";
+  }
+
+  function updateKey(letter){
+    // Create a row only when unlocked: "LETTER  GLYPH"
+    let row = keyGridEl.querySelector(`.keyRow[data-letter="${letter}"]`);
+    if (!row){
+      row = document.createElement("div");
+      row.className = "keyRow unlocked";
+      row.dataset.letter = letter;
+
+      const line = document.createElement("div");
+      line.className = "keyLine";
+      line.innerHTML = `<span class="kL">${letter}</span><span class="kG">${GLYPH[letter]}</span>`;
+      row.appendChild(line);
+
+      keyGridEl.appendChild(row);
+    }
+    unlockedCountEl.textContent = String(unlocked.size);
+  }
+
+  function updateStats(){
+    movesEl.textContent = String(moves);
+    matchesEl.textContent = String(matches);
+    unlockedCountEl.textContent = String(unlocked.size);
+  }
+
+  function resetGame(){
+    first = null; second = null; lock = false;
+    moves = 0; matches = 0; unlocked.clear();
+    updateStats();
+    buildKeyPanel();
+
+    // Create 52 cards (26 pairs)
+    deck = [];
+    for (const letter of LETTERS){
+      deck.push({ letter, glyph: GLYPH[letter], id: safeId() });
+      deck.push({ letter, glyph: GLYPH[letter], id: safeId() });
+    }
+    shuffle(deck);
+
+    gridEl.innerHTML = "";
+    for (const card of deck){
+      const el = document.createElement("div");
+      el.className = "card";
+      el.dataset.letter = card.letter;
+      el.dataset.id = card.id;
+
+      el.innerHTML = `
+        <div class="inner">
+          <div class="face front">
+            <div class="seal"></div>
+            <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true">
+              <text x="50" y="54">✦</text>
+            </svg>
+          </div>
+          <div class="face back">
+            <div class="seal"></div>
+            ${makeSigilSVG(card.glyph)}
+          </div>
+        </div>
+      `;
+      el.addEventListener("click", () => onFlip(el), { passive: true });
+      gridEl.appendChild(el);
+    }
+  }
+
+  async function onFlip(cardEl){
+    if (lock) return;
+    if (cardEl.classList.contains("matched")) return;
+    if (cardEl === first) return;
+
+    // iOS: resume audio on first interaction
+    try { await AudioFX.resume(); } catch(e){}
+
+    AudioFX.swish();
+    cardEl.classList.add("flipped");
+
+    if (!first){
+      first = cardEl;
+      return;
+    }
+
+    second = cardEl;
+    moves += 1;
+    updateStats();
+
+    const a = first.dataset.letter;
+    const b = second.dataset.letter;
+
+    if (a === b){
+      // Match!
+      lock = true;
+      setTimeout(() => {
+        first.classList.add("matched","locked");
+        second.classList.add("matched","locked");
+        matches += 1;
+        unlocked.add(a);
+        updateKey(a);
+        updateStats();
+
+        AudioFX.ding();
+
+        first = null; second = null; lock = false;
+
+        if (matches === 26){
+          celebrate();
+        }
+      }, 220);
+    } else {
+      // Miss
+      lock = true;
+      setTimeout(() => {
+        AudioFX.buzz();
+        first.classList.remove("flipped");
+        second.classList.remove("flipped");
+        first = null; second = null; lock = false;
+      }, 1000);
+    }
+  }
+
+
+  function buildFullKey(){
+    fullKeyEl.innerHTML = "";
+    for (const letter of LETTERS){
+      const tile = document.createElement("div");
+      tile.className = "keyTile";
+      tile.innerHTML = `<div class="L">${letter}</div><div class="G">${GLYPH[letter]}</div>`;
+      fullKeyEl.appendChild(tile);
+    }
+  }
+
+  function showOverlay(){
+    buildFullKey();
+    overlayEl.classList.add("show");
+    // allow ESC to close
+    document.addEventListener("keydown", onEscClose);
+  }
+
+  function hideOverlay(){
+    overlayEl.classList.remove("show");
+    document.removeEventListener("keydown", onEscClose);
+  }
+
+  function onEscClose(e){
+    if (e.key === "Escape") hideOverlay();
+  }
+
+  // Close overlay on button or background click
+  if (closeOverlayBtn && overlayEl){
+    closeOverlayBtn.addEventListener("click", hideOverlay);
+    overlayEl.addEventListener("click", (e) => {
+      if (e.target === overlayEl) hideOverlay();
+    });
+  }
+
+
+  function celebrate(){
+    // Celebration: trumpet fanfare + full-screen A–Z key overlay
+    try { AudioFX.fanfare(); } catch(e){}
+    showOverlay();
+
+    // Also flash the header briefly
+    const h1 = document.querySelector("h1");
+    const orig = h1.textContent;
+    h1.textContent = "Cipher Complete — All Letters Unlocked";
+    h1.style.color = "var(--gold)";
+    setTimeout(() => {
+      h1.textContent = orig;
+      h1.style.color = "";
+    }, 3500);
+  }
+
+  // Start
+  resetGame();
+})();
+</script>
+
+</body>
+</html>
