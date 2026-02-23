@@ -322,6 +322,67 @@
       .keyTile .G{ font-size: 30px; }
     }
 
+  
+    /* Mobile-friendly collapsible Key panel */
+    .keyDetails{ border:0; }
+    .keyDetails > summary{ list-style:none; }
+    .keyDetails > summary::-webkit-details-marker{ display:none; }
+
+    .keySummary{
+      cursor:pointer;
+      padding:12px 12px 10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border-bottom:1px solid rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size:13px;
+      user-select:none;
+    }
+    .keySummaryLeft{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:800;
+      color: var(--ink);
+      letter-spacing:.2px;
+    }
+    .keySummaryLeft::before{
+      content:"▸";
+      opacity:.85;
+      transform: translateY(-1px);
+    }
+    details[open] .keySummaryLeft::before{
+      content:"▾";
+    }
+    .keySummaryRight strong{ color: var(--ink); }
+
+    /* On desktop, keep the key open like a normal panel */
+    @media (min-width: 981px){
+      .keyDetails{ height:100%; }
+      .keyDetails[open] .keyBody{ display:block; }
+    }
+
+    /* Phone tuning */
+    @media (max-width: 520px){
+      header{ padding:14px 12px 4px 12px; }
+      .wrap{ padding:10px 12px 14px 12px; gap:12px; }
+      .panelHead{ padding:10px 10px 8px 10px; }
+      .grid{ padding:10px; gap:8px; grid-template-columns: repeat(auto-fit, minmax(68px, 1fr)); }
+      .card{ border-radius: 12px; }
+      .face{ border-radius: 12px; }
+      .seal{ inset:8px; border-radius: 10px; }
+      .sigil text{ font-size: 46px; }
+      .hint{ padding:10px; font-size:12px; }
+      .keyBody{ padding:10px; }
+      .keyGrid{ gap:8px; }
+      .keyRow{ padding:9px 9px; }
+      .kL{ font-size:16px; }
+      .kG{ font-size:20px; }
+    }
+
   </style>
 </head>
 <body>
@@ -345,20 +406,23 @@
     </div>
   </section>
 
+  
   <aside class="keyPanel">
-    <div class="panelHead">
-      <div class="stats">
-        <span class="pill">Key</span>
-        <span class="pill">Unlocked: <strong id="unlockedCount">0</strong> / 26</span>
+    <details id="keyDetails" class="keyDetails" open>
+      <summary class="keySummary">
+        <span class="keySummaryLeft">Key</span>
+        <span class="keySummaryRight">Unlocked: <strong id="unlockedCount">0</strong> / 26</span>
+      </summary>
+
+      <div class="keyBody">
+        <div id="keyGrid" class="keyGrid"></div>
+        <div class="footerNote">
+          Tip: On phones, you can collapse/expand this Key panel using the bar above.
+        </div>
       </div>
-    </div>
-    <div class="keyBody">
-      <div id="keyGrid" class="keyGrid"></div>
-      <div class="footerNote">
-        Hosting note: if you want a QR code, host this single HTML file somewhere public (Google Sites, GitHub Pages, Netlify, etc.), then generate a QR code that points to the URL.
-      </div>
-    </div>
+    </details>
   </aside>
+
 </div>
 
 <div id="completeOverlay" class="overlay" role="dialog" aria-modal="true" aria-label="Cipher key">
