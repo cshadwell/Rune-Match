@@ -245,7 +245,7 @@
   $('completeOverlay').addEventListener('close',()=>{if(returnFocus?.isConnected)returnFocus.focus();});
   const tutorialPages=[
     {title:'Find matching runes',text:'Turn over two cards. Look for identical rune shapes. If they differ, they turn back over—remember where you saw them.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('A')}</span><span class="tutorialTile">${RuneArtwork.render('A')}</span>`},
-    {title:'Build your cipher',text:'Each matching pair reveals a letter. Open View cipher whenever you want to see the letters you have deciphered.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('A')}</span><span class="tutorialLetter">= A</span>`},
+    {title:'Build your cipher',text:'Each matching pair reveals a letter. Open View cipher whenever you want to see the letters you have deciphered.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('A')}</span><span class="tutorialLetter">= ?</span>`},
     {title:'Keep what you discover',text:'Your progress saves in this browser. Return here to keep playing or consult your cipher. Match all 26 pairs to download the complete key for later in your adventure.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('S')}</span><span class="tutorialTile">${RuneArtwork.render('W')}</span>`}
   ];
   function renderTutorial(){
