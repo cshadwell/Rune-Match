@@ -24,7 +24,7 @@ function browser({store=new Map(),audio='missing',blocked=false,locks=null,confi
   const localStorage={getItem(k){if(blocked)throw Error('blocked');return store.get(k)??null;},setItem(k,v){if(blocked)throw Error('blocked');store.set(k,v);}};
   const win={confirm:()=>confirm,addEventListener(k,fn){(events[k]??=[]).push(fn);}};
   if(audio!=='missing')win.AudioContext=function(){this.resume=()=>audio==='suspended'?new Promise(()=>{}):Promise.reject(Error('audio denied'));this.createOscillator=()=>{throw Error('audio device failed');};};
-  const ctx={RuneMatch:{Game,LETTERS,IDS,fresh,validate,GLYPH},document:doc,localStorage,navigator:locks?{locks}:{},window:win,setTimeout(fn){const id=++nextTimer;timers.set(id,fn);return id;},clearTimeout:id=>timers.delete(id),console};
+  const ctx={RuneArtwork:require("../rune-art.js"),RuneMatch:{Game,LETTERS,IDS,fresh,validate,GLYPH},document:doc,localStorage,navigator:locks?{locks}:{},window:win,setTimeout(fn){const id=++nextTimer;timers.set(id,fn);return id;},clearTimeout:id=>timers.delete(id),console};
   vm.createContext(ctx);vm.runInContext(script,ctx);
   const find=id=>els.grid.children.find(e=>e.dataset.id===id);
   return {els,store,doc,find,events,timers,async click(id){find(id).fire('click');await tick();},async control(id){els[id].fire('click');await tick();},settle(){for(const [id,fn] of timers){timers.delete(id);fn();}},saved:()=>JSON.parse(store.get(KEY)),async event(k,e={}){for(const fn of events[k]??[])fn(e);await tick();}};
@@ -45,17 +45,18 @@ test('newer tab wins: stale selection never overwrites saved matches',async()=>{
 test('concurrent first loads and turns are serialized across tabs',async()=>{const store=new Map(),locks=makeLocks();const a=browser({store,locks}),b=browser({store,locks});await tick();await tick();assert.deepEqual(a.els.grid.children.map(e=>e.dataset.id),b.els.grid.children.map(e=>e.dataset.id));await a.click('A-0');await b.click('B-0');a.find('A-1').fire('click');b.find('B-1').fire('click');await tick();await tick();assert.deepEqual(a.saved().game.matched,['A']);assert.equal(a.saved().game.moves,1);});
 test('storage events invalidate pending callbacks; cleared saves reset safely',async()=>{const b=browser();await tick();await b.click('A-0');await b.click('B-0');b.store.delete(KEY);await b.event('storage',{key:KEY});assert.equal(b.timers.size,0);assert.equal(b.els.moves.textContent,'0');b.settle();});
 test('hidden cards do not expose answer letters in their accessible label',async()=>{const b=browser();await tick();assert.match(b.find('A-0').attrs['aria-label'],/^Card \d+: hidden$/);await b.click('A-0');assert.match(b.find('A-0').attrs['aria-label'],/exposed rune ᛉ$/);});
-test('bundled font covers all 26 runes with distinct nonmissing glyphs',()=>{
-  const css=fs.readFileSync(require.resolve('../runes.css'),'utf8');
-  const b=Buffer.from(css.match(/base64,([^')]+)/)[1],'base64');
-  const u16=o=>b.readUInt16BE(o),u32=o=>b.readUInt32BE(o);
-  let cmap;
-  for(let i=0;i<u16(4);i++){const o=12+16*i;if(b.toString('ascii',o,o+4)==='cmap')cmap=u32(o+8);}
-  assert.ok(cmap);
-  let table;
-  for(let i=0;i<u16(cmap+2);i++){const t=cmap+u32(cmap+4+i*8+4);if(u16(t)===4){table=t;break;}}
-  assert.ok(table);const n=u16(table+6)/2;
-  function glyph(cp){for(let j=0;j<n;j++){const end=u16(table+14+j*2),start=u16(table+16+n*2+j*2);if(cp<start||cp>end)continue;const delta=u16(table+16+n*4+j*2),r=table+16+n*6+j*2,off=u16(r);const g=off?u16(r+off+2*(cp-start)):cp;return off&&g===0?0:(g+delta)&65535;}return 0;}
-  const glyphs=LETTERS.map(l=>glyph(GLYPH[l].codePointAt(0)));
-  assert.ok(glyphs.every(g=>g!==0));assert.equal(new Set(glyphs).size,26);
+test('all approved SVG paths and assignments are preserved exactly',()=>{
+  const {ART,render}=require('../rune-art.js');
+  const source=fs.readFileSync(require.resolve('../reference/Rune_Match_Alphabet_Key.svg'),'utf8');
+  assert.deepEqual(Object.keys(ART),LETTERS);
+  for(const l of LETTERS){
+    const group=source.match(new RegExp('<g id="rune-'+l+'"[\\s\\S]*?<path[^>]+d="([^"]+)"'));
+    assert.ok(group,l); assert.equal(ART[l].d,group[1]);assert.equal(ART[l].rune,GLYPH[l]);
+    assert.ok(render(l).includes('d="'+group[1]+'"'));assert.ok(!render(l).includes('<text'));
+  }
+});
+test('cards and both key displays use approved paths',async()=>{
+ const b=browser();await tick();assert.ok(b.find('A-0').innerHTML.includes('<path'));
+ await b.click('A-0');await b.click('A-1');b.settle();assert.ok(b.els.keyGrid.children[0].innerHTML.includes('<path'));
+ await b.control('viewCipher');assert.ok(b.els.fullKey.children[0].innerHTML.includes('<path'));
 });

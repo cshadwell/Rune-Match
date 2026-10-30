@@ -172,15 +172,12 @@
       if(result?.catch) result.catch(()=>{});
     } catch {} // An unavailable sound device must never affect the game.
   }
-  function sigil(glyph) {
-    return `<svg class="sigil" viewBox="0 0 100 100" aria-hidden="true"><text x="50" y="54">${glyph}</text></svg>`;
-  }
   function buildBoard() {
     cards.clear();$('grid').replaceChildren();
     game.state.deck.forEach((id,index)=>{
       const el=document.createElement('button');
       el.type='button';el.className='card';el.dataset.id=id;
-      el.innerHTML=`<span class="inner" aria-hidden="true"><span class="face front"><span class="seal"></span><span style="font-size:30px">✦</span></span><span class="face back"><span class="seal"></span>${sigil(GLYPH[id[0]])}</span></span>`;
+      el.innerHTML=`<span class="inner" aria-hidden="true"><span class="face front"><span class="seal"></span><span style="font-size:30px">✦</span></span><span class="face back"><span class="seal"></span>${RuneArtwork.render(id[0])}</span></span>`;
       el.addEventListener('click',()=>flip(id));
       el.dataset.position=String(index+1);cards.set(id,el);$('grid').append(el);
     });
@@ -193,7 +190,7 @@
     }
     for(const letter of LETTERS.filter(l=>matched.includes(l))) {
       const row=document.createElement('div');row.className=full?'keyTile':'keyRow unlocked';
-      row.innerHTML=full?`<div class="L">${letter}</div><div class="G">${GLYPH[letter]}</div>`:`<div class="keyLine"><span class="kL">${letter}</span><span class="kG">${GLYPH[letter]}</span></div>`;
+      row.innerHTML=full?`<div class="L">${letter}</div><div class="G">${RuneArtwork.render(letter,"keyRune")}</div>`:`<div class="keyLine"><span class="kL">${letter}</span><span class="kG">${RuneArtwork.render(letter,"keyRune")}</span></div>`;
       row.setAttribute('aria-label',`${letter}: rune ${GLYPH[letter]}`);target.append(row);
     }
   }
@@ -273,7 +270,4 @@
     if(lastRaw!==null) {try {decode(lastRaw);return;} catch {}}
     persist();
   });
-  document.fonts.load('34px "Rune Match Runic"',LETTERS.map(l=>GLYPH[l]).join('')).then(fonts=>{
-    if(!fonts.length) warn('The rune font could not load. Reload with a connection before playing so the symbols display correctly.');
-  }).catch(()=>warn('The rune font could not load. Reload with a connection before playing so the symbols display correctly.'));
 })();

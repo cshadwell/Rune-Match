@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Rune Match — Learn the Cipher</title>
-  <link rel="stylesheet" href="runes.css">
   <style>
     :root{
       --bg:#0b0f14;
@@ -404,6 +403,8 @@
     .overlayCard { background:var(--panel); }
     .emptyKey { padding:14px; color:var(--muted); }
     @media (prefers-reduced-motion:reduce) { .inner { transition:none; } button:active { transform:none; } }
+    .keyRune { display:block; width:44px; height:44px; color:var(--ink); }
+    .keyTile .keyRune { width:54px; height:54px; }
   </style>
 </head>
 <body>
@@ -460,6 +461,7 @@
 </dialog>
 
 <script src="engine.js"></script>
+<script src="rune-art.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

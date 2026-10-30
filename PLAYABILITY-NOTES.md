@@ -9,3 +9,7 @@ Verification: 19 Node regression tests; local browser completion of all 26 pairs
 Remaining external checks: physical iPhone/iPad Safari; independent fresh-player difficulty/pacing; comparison to fabrication artwork. The original memory-game difficulty and partial-decoding behavior are intentionally retained.
 
 Project continuity: this note records the P03 software milestone. The master blueprint and synced sources were not edited. Its software implementation/status paragraph should be updated after the deployment status is verified.
+
+## Approved outlined artwork correction
+
+Replaced visible font glyphs with the exact 26 paths from the supplied Rune_Match_Alphabet_Key.svg. The original reference is preserved in reference/. Only SVG viewBoxes and color are adapted for display; path coordinates and assignments remain unchanged. All 20 regression tests pass, including exact path comparison and all three rendering locations. No save format, board order, or matching rule changed.

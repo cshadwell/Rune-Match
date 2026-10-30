@@ -12,7 +12,7 @@ A 26-pair memory game that reveals the adventure's established rune-to-letter ci
 - View cipher is always available and shows only earned letters, alphabetized. Completion unlocks the entire persistent reference.
 - Cards are keyboard buttons with state labels. A native modal dialog handles focus containment, Escape, and focus restoration. Feedback does not require sound. Reduced-motion preferences disable flip transitions.
 - Sticky navigation links make the board and inline key reachable on narrow phones.
-- Noto Sans Runic is embedded in `runes.css`; there are no third-party font requests. Its SIL Open Font License is in `OFL.txt`. All 26 codepoints have distinct nonmissing glyph IDs in this font.
+- All visible runes use the exact outlined paths supplied in `reference/Rune_Match_Alphabet_Key.svg`. Cards, inline key, and cipher dialog share `rune-art.js`. No rune fonts are loaded or used. Path coordinates are preserved unchanged; square viewBoxes center them without rotation or distortion.
 
 Browser storage is not an account or cross-device sync. Clearing website data or using another browser/device will not carry progress over. A previously open version of the original game had no save to migrate.
 
@@ -30,8 +30,8 @@ Open http://127.0.0.1:8766/. Automated tests require Node.js and no installed pa
 node --test tests/playability.test.cjs
 ```
 
-Tests cover state validation, all 26 matches, rapid input, audio failures, reload during turns, completion reopening, damaged/blocked storage, mute/reset, tab conflicts, accessible labels, and bundled font coverage. Browser glue uses a DOM/storage harness; this is separate from real-browser checks.
+Tests cover state validation, all 26 matches, rapid input, audio failures, reload during turns, completion reopening, damaged/blocked storage, mute/reset, tab conflicts, accessible labels, and exact approved SVG path coverage. Browser glue uses a DOM/storage harness; this is separate from real-browser checks.
 
 Real-browser checks completed on the local build: Enter/Space matching; earned match retained after reload; all 26 pairs and automatic completion; completed key reopened after reload; Escape focus return; no horizontal overflow at a 320px viewport; no console errors during the playthrough. These are not physical iPhone/iPad or physical engraving tests.
 
-Before fabrication, compare all rune outlines with the physical artwork. Bundling a font preserves codepoint mappings but does not prove that earlier engraved or outlined assets use identical glyph shapes.
+The supplied outlined alphabet key is the visual authority. Future artwork changes must preserve these paths and letter assignments. Unicode runes remain only in accessible descriptions and announcements.
