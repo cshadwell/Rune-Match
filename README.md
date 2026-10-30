@@ -40,3 +40,7 @@ The supplied outlined alphabet key is the visual authority. Future artwork chang
 ## Board-first interface verification
 
 24 automated regression tests pass. Real-browser checks covered tutorial Next/Back/Skip/Start playing, remembered dismissal after reload, replay/Escape, keyboard matching, saved partial key access, and completed-game download. The downloaded SVG was byte-for-byte identical to the approved reference. Board fit checked at 1280×720, 768×1024, 390×844, and 320×568; all 52 cards fit without page overflow at these sizes. No browser errors or warnings were reported. Physical device testing remains separate.
+
+## Ancient tablet appearance
+
+Stone-textured tiles with decorative bronze seals and rims, ivory outlined runes, subdued amber match illumination, and a non-interactive bronze perimeter. Phone framing is narrower to retain board space. Exposed-rune surfaces are darkened for clarity. Exact rune paths, saved game format, tutorial question mark, and approved downloadable SVG are preserved. Small screens may scroll to maintain 44px card targets. Asset provenance and the generation prompt are in assets/TABLET-THEME.md.

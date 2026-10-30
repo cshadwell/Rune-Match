@@ -17,3 +17,7 @@ Replaced visible font glyphs with the exact 26 paths from the supplied Rune_Matc
 ## Board-first interface
 
 Implemented the requested compact title/toolbar, screen-filling board, first-visit skippable tutorial, modal cipher, and completion-only approved SVG download. Removed visible moves/matches, restart, standing directions, and inline key. Existing save data and exact rune paths are preserved. Tutorial dismissal is saved separately from game progress. All 24 regression tests pass; real-browser tutorial, download, reload, and four screen-size checks passed.
+
+## Ancient tablet theme
+
+Applied warm charcoal stone, bronze tile rims and seals, ivory approved outlines, restrained amber matched-pair illumination, and a decorative screen perimeter. The frame is non-interactive and narrows on mobile. Tutorial and cipher dialogs use the same palette; the printable download is unchanged. Existing exact-path tests pass. A minimal layout adjustment accounts for the new body inset and avoids unnecessary scrolling at short viewport heights. Physical-device testing remains separate from browser viewport checks.

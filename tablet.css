@@ -1,0 +1,70 @@
+/* Ancient tablet skin. Approved rune-art.js paths are never transformed or filtered. */
+:root {
+  --bg:#151411; --panel:#24231e; --ink:#f0e8d6; --muted:#c0b59e;
+  --gold:#e2bd77; --bronze:#977644; --screen-inset:17px;
+}
+body {
+  padding:var(--screen-inset);
+  background-color:#151411;
+  background-image:radial-gradient(ellipse at 50% 0%,#74614230,transparent 65%),linear-gradient(#10100ee6,#10100ed9),url('assets/tablet-stone.jpg');
+  background-size:auto,auto,650px 650px;
+}
+.tabletFrame { position:fixed; inset:6px; z-index:20; pointer-events:none; border:2px solid #896a3b; box-shadow:0 0 0 3px #0b0b09,inset 0 0 0 2px #11110e,inset 0 0 0 4px #50402a,0 0 0 4px #544129; }
+.tabletFrame::before { content:''; position:absolute; inset:5px; border:1px solid #a7864b55; }
+.frameCorner { position:absolute; width:48px; height:48px; background:url('assets/tablet-corner.svg') center/contain no-repeat; }
+.frameCorner.nw { left:-4px; top:-4px; }
+.frameCorner.ne { right:-4px; top:-4px; transform:rotate(90deg); }
+.frameCorner.se { right:-4px; bottom:-4px; transform:rotate(180deg); }
+.frameCorner.sw { left:-4px; bottom:-4px; transform:rotate(270deg); }
+.frameCrest { position:absolute; left:50%; width:180px; height:24px; transform:translateX(-50%); background:#151411 url('assets/tablet-crest.svg') center/contain no-repeat; }
+.frameCrest.top { top:-11px; }
+.frameCrest.bottom { bottom:-11px; transform:translateX(-50%) rotate(180deg); }
+header { padding:10px 16px 12px; border-bottom:1px solid #9f804438; margin-bottom:9px; }
+h1 { font-family:Palatino,'Palatino Linotype','Book Antiqua',Georgia,serif; font-weight:500; font-size:clamp(22px,2.7vw,32px); letter-spacing:.07em; color:#e4c792; text-shadow:0 2px 2px #000; }
+button,.download { color:#e5d1a7; border:1px solid #987644; border-radius:4px; background:linear-gradient(#383126b3,#151511d9); box-shadow:inset 0 0 0 2px #100f0c,inset 0 0 0 3px #9a784126,0 2px 4px #0005; }
+button:hover,.download:hover { color:#fff0cf; background-color:#635033; border-color:#c8a563; }
+button:focus-visible,.download:focus-visible { outline-color:#ffd68a; }
+button.card { border:0; background:none; box-shadow:none; border-radius:6px; }
+.inner { border-radius:6px; }
+.face,.tutorialTile,.keyTile {
+  border:1px solid #a1844e; border-radius:6px;
+  background-color:#2c2b25;
+  background-image:linear-gradient(135deg,#a397761c,transparent 45%,#0005),url('assets/tablet-stone.jpg');
+  background-size:auto,390px 390px;
+  box-shadow:inset 0 0 0 2px #141410,inset 0 0 0 3px #b2914c38,inset 0 1px 8px #c4ae7330,inset 0 -5px 10px #0006,0 3px 5px #0009;
+}
+.card:nth-child(3n) .face { background-position:0 0,100px 180px; }
+.card:nth-child(3n+1) .face { background-position:0 0,240px 60px; }
+.card:nth-child(5n) .face { background-position:0 0,70px 300px; }
+.seal { inset:5px; border:1px solid #b3934933; border-radius:3px; }
+.cardSeal { width:57%; height:57%; max-width:84px; max-height:84px; background:url('assets/tablet-seal.svg') center/contain no-repeat; opacity:.9; }
+.back { color:#f2e8d1; background-image:linear-gradient(#19191499,#19191499),url('assets/tablet-stone.jpg'); }
+.card .sigil { position:relative; z-index:1; }
+.card.matched .face { border-color:#eac074; box-shadow:inset 0 0 0 2px #342516,inset 0 0 0 3px #b28a44,inset 0 0 16px #c08a282a,0 0 7px #daa45155; }
+.card.matched .seal { border-color:#edc67e66; }
+.card.matched .back { color:#ffe6b3; }
+.card.matched .back::after { content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 20px #ffc65a66,0 0 12px #ffb83377; opacity:0; animation:awaken .65s ease-out; pointer-events:none; }
+@keyframes awaken { 15% { opacity:1; } 100% { opacity:0; } }
+dialog { border:1px solid #b18b4b; border-radius:8px; background-color:#23221d; background-image:linear-gradient(#23221df5,#23221df5),url('assets/tablet-stone.jpg'); box-shadow:inset 0 0 0 3px #12120e,inset 0 0 0 4px #8a6d3a66,0 18px 60px #000c; }
+.overlayHead { background:#26251ff5; border-bottom-color:#9d7c434d; }
+h2 { font-family:Palatino,'Palatino Linotype',Georgia,serif; font-weight:500; letter-spacing:.02em; }
+.keyTile { color:var(--ink); }
+.keyTile .L { color:var(--gold); }
+.tutorialTile { color:var(--ink); }
+.tutorialTile,.keyTile { background-image:linear-gradient(#19191499,#19191499),url('assets/tablet-stone.jpg'); }
+.primary { color:#17140e; background:linear-gradient(#e4c38a,#b8904f); border-color:#e4c184; box-shadow:inset 0 0 0 2px #bc9556; }
+.primary:hover { background:linear-gradient(#f3d49c,#cba25f); color:#17140e; }
+@media(max-width:480px) {
+  :root { --screen-inset:10px; }
+  .tabletFrame { inset:3px; border-width:1px; box-shadow:0 0 0 2px #0b0b09,inset 0 0 0 2px #50402a; }
+  .tabletFrame::before { inset:3px; }
+  .frameCorner { width:26px; height:26px; }
+  .frameCrest { width:96px; height:13px; }
+  .frameCrest.top { top:-6px; } .frameCrest.bottom { bottom:-6px; }
+  header { padding:7px 5px 9px; gap:5px; margin-bottom:6px; }
+  h1 { font-size:20px; letter-spacing:.02em; padding-top:5px; }
+  button,.download { padding:8px 7px; }
+  .face,.inner { border-radius:5px; }
+  .seal { inset:4px; }
+}
+@media(prefers-reduced-motion:reduce) { .card.matched .back::after { animation:none; } }

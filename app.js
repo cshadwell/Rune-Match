@@ -179,7 +179,7 @@
     game.state.deck.forEach((id,index)=>{
       const el=document.createElement('button');
       el.type='button';el.className='card';el.dataset.id=id;
-      el.innerHTML=`<span class="inner" aria-hidden="true"><span class="face front"><span class="seal"></span><span style="font-size:30px">✦</span></span><span class="face back"><span class="seal"></span>${RuneArtwork.render(id[0])}</span></span>`;
+      el.innerHTML=`<span class="inner" aria-hidden="true"><span class="face front"><span class="seal"></span><span class="cardSeal"></span></span><span class="face back"><span class="seal"></span>${RuneArtwork.render(id[0])}</span></span>`;
       el.addEventListener('click',()=>flip(id));
       el.dataset.position=String(index+1);cards.set(id,el);$('grid').append(el);
     });
@@ -276,7 +276,8 @@
     const grid=$('grid');
     if(!grid.getBoundingClientRect)return;
     const rect=grid.getBoundingClientRect(),gap=window.innerWidth<=480?6:8;
-    const height=Math.max(44,window.innerHeight-(rect.top+window.scrollY)-(window.innerWidth<=480?6:10));
+    const bottomPadding=parseFloat(window.getComputedStyle(document.body).paddingBottom)||0;
+    const height=Math.max(44,window.innerHeight-(rect.top+window.scrollY)-(window.innerWidth<=480?6:10)-bottomPadding);
     const fitted=RuneLayout.fit(rect.width,height,52,gap);
     grid.style.gridTemplateColumns=`repeat(${fitted.columns}, minmax(0, 1fr))`;
     grid.style.gridTemplateRows=`repeat(${fitted.rows}, minmax(44px, 1fr))`;

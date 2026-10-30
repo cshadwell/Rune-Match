@@ -10,7 +10,7 @@
       if(!best||score<best.score)best={columns,rows,height,score};
     }
     if(best)return best;
-    const columns=Math.max(1,Math.min(8,Math.floor((width+gap)/64)));
+    const columns=Math.max(1,Math.min(8,Math.floor((width+gap)/(min+gap))));
     const rows=Math.ceil(count/columns);
     return {columns,rows,height:Math.max(height,rows*min+(rows-1)*gap)};
   }
