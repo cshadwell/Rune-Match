@@ -90,3 +90,21 @@ test('screen-fit layout keeps minimum touch size and all card slots',()=>{
   assert.ok((r.height-gap*(r.rows-1))/r.rows>=44-1e-10);
  }
 });
+test('supplied Photoshop tile is unchanged, including its original dimensions',()=>{
+ const crypto=require('node:crypto');
+ const manifest=JSON.parse(fs.readFileSync(require.resolve('../assets/custom-tile-manifest.json'),'utf8'));
+ const png=fs.readFileSync(require.resolve('../assets/custom-tile.png'));
+ assert.equal(crypto.createHash('sha256').update(png).digest('hex'),manifest.sha256);
+ assert.equal(png.readUInt32BE(16),1086);assert.equal(png.readUInt32BE(20),1448);
+});
+test('portrait artwork keeps its exact aspect ratio and accessible touch size',()=>{
+ const {fit}=require('../layout.js');
+ for(const [width,height,gap] of [[1220,562,8],[610,800,8],[356,690,6],[286,420,6]]){
+  const r=fit(width,height,52,gap,44,.75);
+  assert.ok(Math.abs(r.tileWidth/r.tileHeight-.75)<1e-12);
+  assert.ok(r.tileWidth>=44-1e-10);assert.ok(r.tileHeight>=44-1e-10);
+  assert.ok(r.columns*r.rows>=52);
+  assert.ok(r.tileWidth<=(width-gap*(r.columns-1))/r.columns+1e-10);
+  assert.ok(r.tileHeight<=(r.height-gap*(r.rows-1))/r.rows+1e-10);
+ }
+});

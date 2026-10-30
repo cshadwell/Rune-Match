@@ -44,3 +44,9 @@ The supplied outlined alphabet key is the visual authority. Future artwork chang
 ## Ancient tablet appearance
 
 Stone-textured tiles with decorative bronze seals and rims, ivory outlined runes, subdued amber match illumination, and a non-interactive bronze perimeter. Phone framing is narrower to retain board space. Exposed-rune surfaces are darkened for clarity. Exact rune paths, saved game format, tutorial question mark, and approved downloadable SVG are preserved. Small screens may scroll to maintain 44px card targets. Asset provenance and the generation prompt are in assets/TABLET-THEME.md.
+
+## Approved Photoshop composition
+
+The current interface uses the user-designed stone frame with the original centered title, View cipher on the left, sound on the right, and five decorative faceted jewels. Purple/yellow remain above, red/blue/green below; no gameplay behavior is assigned to them. The supplied custom-tile.png is preserved byte for byte and rendered at its original 3:4 aspect ratio. All 26 rune paths remain exact approved outlines. Download cipher is available inside View cipher after completion. Short screens may scroll to preserve 44px targets.
+
+26 regression tests pass, including PNG hash/dimension verification and portrait-layout coverage. See PHOTOSHOP-REVISION.md for asset provenance and cleanup details.

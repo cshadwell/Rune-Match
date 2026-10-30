@@ -54,12 +54,13 @@
     @media(max-width:480px) { header { padding:8px 10px; align-items:flex-start; } h1 { padding-top:7px; } .controls { gap:5px; } button,.download { font-size:12px; padding:8px; } main { padding:0 6px 6px; } .grid { gap:6px; } .seal { inset:5px; } .face,.inner { border-radius:9px; } }
     @media(prefers-reduced-motion:reduce) { .inner { transition:none; } }
   </style>
-  <link rel="stylesheet" href="tablet.css?v=ancient-tablet-1">
+  <link rel="stylesheet" href="tablet.css?v=photoshop-frame-1">
 </head>
 <body>
-  <div class="tabletFrame" aria-hidden="true"><span class="frameCorner nw"></span><span class="frameCorner ne"></span><span class="frameCorner se"></span><span class="frameCorner sw"></span><span class="frameCrest top"></span><span class="frameCrest bottom"></span></div>
+  <div class="tabletFrame" aria-hidden="true"></div>
+  <div class="borderJewels" aria-hidden="true"><span class="jewel purple" data-gem="purple"></span><span class="jewel yellow" data-gem="yellow"></span><span class="jewel red" data-gem="red"></span><span class="jewel blue" data-gem="blue"></span><span class="jewel green" data-gem="green"></span></div>
   <header id="gameHeader">
-    <h1>Rune Match</h1>
+    <h1 aria-label="Rune Match"><span class="srOnly">Rune Match</span></h1>
     <div class="controls">
       <button id="viewCipher" type="button">View cipher</button>
       <button id="mute" type="button" aria-pressed="false">Sound on</button>
@@ -87,6 +88,6 @@
     <div class="tutorialActions"><button id="skipTutorial" type="button">Skip tutorial</button><div><button id="tutorialBack" type="button">Back</button><button id="tutorialNext" class="primary" type="button">Next</button></div></div>
   </dialog>
   <noscript><p>This matching game needs JavaScript enabled to play.</p></noscript>
-  <script src="engine.js"></script><script src="rune-art.js"></script><script src="layout.js?v=ancient-tablet-1"></script><script src="app.js?v=ancient-tablet-1"></script>
+  <script src="engine.js"></script><script src="rune-art.js"></script><script src="layout.js?v=photoshop-frame-1"></script><script src="app.js?v=photoshop-frame-1"></script>
 </body>
 </html>

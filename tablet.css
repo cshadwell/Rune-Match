@@ -1,70 +1,65 @@
-/* Ancient tablet skin. Approved rune-art.js paths are never transformed or filtered. */
-:root {
-  --bg:#151411; --panel:#24231e; --ink:#f0e8d6; --muted:#c0b59e;
-  --gold:#e2bd77; --bronze:#977644; --screen-inset:17px;
-}
-body {
-  padding:var(--screen-inset);
-  background-color:#151411;
-  background-image:radial-gradient(ellipse at 50% 0%,#74614230,transparent 65%),linear-gradient(#10100ee6,#10100ed9),url('assets/tablet-stone.jpg');
-  background-size:auto,auto,650px 650px;
-}
-.tabletFrame { position:fixed; inset:6px; z-index:20; pointer-events:none; border:2px solid #896a3b; box-shadow:0 0 0 3px #0b0b09,inset 0 0 0 2px #11110e,inset 0 0 0 4px #50402a,0 0 0 4px #544129; }
-.tabletFrame::before { content:''; position:absolute; inset:5px; border:1px solid #a7864b55; }
-.frameCorner { position:absolute; width:48px; height:48px; background:url('assets/tablet-corner.svg') center/contain no-repeat; }
-.frameCorner.nw { left:-4px; top:-4px; }
-.frameCorner.ne { right:-4px; top:-4px; transform:rotate(90deg); }
-.frameCorner.se { right:-4px; bottom:-4px; transform:rotate(180deg); }
-.frameCorner.sw { left:-4px; bottom:-4px; transform:rotate(270deg); }
-.frameCrest { position:absolute; left:50%; width:180px; height:24px; transform:translateX(-50%); background:#151411 url('assets/tablet-crest.svg') center/contain no-repeat; }
-.frameCrest.top { top:-11px; }
-.frameCrest.bottom { bottom:-11px; transform:translateX(-50%) rotate(180deg); }
-header { padding:10px 16px 12px; border-bottom:1px solid #9f804438; margin-bottom:9px; }
-h1 { font-family:Palatino,'Palatino Linotype','Book Antiqua',Georgia,serif; font-weight:500; font-size:clamp(22px,2.7vw,32px); letter-spacing:.07em; color:#e4c792; text-shadow:0 2px 2px #000; }
-button,.download { color:#e5d1a7; border:1px solid #987644; border-radius:4px; background:linear-gradient(#383126b3,#151511d9); box-shadow:inset 0 0 0 2px #100f0c,inset 0 0 0 3px #9a784126,0 2px 4px #0005; }
-button:hover,.download:hover { color:#fff0cf; background-color:#635033; border-color:#c8a563; }
-button:focus-visible,.download:focus-visible { outline-color:#ffd68a; }
-button.card { border:0; background:none; box-shadow:none; border-radius:6px; }
-.inner { border-radius:6px; }
-.face,.tutorialTile,.keyTile {
-  border:1px solid #a1844e; border-radius:6px;
-  background-color:#2c2b25;
-  background-image:linear-gradient(135deg,#a397761c,transparent 45%,#0005),url('assets/tablet-stone.jpg');
-  background-size:auto,390px 390px;
-  box-shadow:inset 0 0 0 2px #141410,inset 0 0 0 3px #b2914c38,inset 0 1px 8px #c4ae7330,inset 0 -5px 10px #0006,0 3px 5px #0009;
-}
-.card:nth-child(3n) .face { background-position:0 0,100px 180px; }
-.card:nth-child(3n+1) .face { background-position:0 0,240px 60px; }
-.card:nth-child(5n) .face { background-position:0 0,70px 300px; }
-.seal { inset:5px; border:1px solid #b3934933; border-radius:3px; }
-.cardSeal { width:57%; height:57%; max-width:84px; max-height:84px; background:url('assets/tablet-seal.svg') center/contain no-repeat; opacity:.9; }
-.back { color:#f2e8d1; background-image:linear-gradient(#19191499,#19191499),url('assets/tablet-stone.jpg'); }
-.card .sigil { position:relative; z-index:1; }
-.card.matched .face { border-color:#eac074; box-shadow:inset 0 0 0 2px #342516,inset 0 0 0 3px #b28a44,inset 0 0 16px #c08a282a,0 0 7px #daa45155; }
-.card.matched .seal { border-color:#edc67e66; }
-.card.matched .back { color:#ffe6b3; }
-.card.matched .back::after { content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 20px #ffc65a66,0 0 12px #ffb83377; opacity:0; animation:awaken .65s ease-out; pointer-events:none; }
-@keyframes awaken { 15% { opacity:1; } 100% { opacity:0; } }
-dialog { border:1px solid #b18b4b; border-radius:8px; background-color:#23221d; background-image:linear-gradient(#23221df5,#23221df5),url('assets/tablet-stone.jpg'); box-shadow:inset 0 0 0 3px #12120e,inset 0 0 0 4px #8a6d3a66,0 18px 60px #000c; }
-.overlayHead { background:#26251ff5; border-bottom-color:#9d7c434d; }
-h2 { font-family:Palatino,'Palatino Linotype',Georgia,serif; font-weight:500; letter-spacing:.02em; }
-.keyTile { color:var(--ink); }
-.keyTile .L { color:var(--gold); }
+/* Photoshop composition, separated into responsive art and real controls.
+   custom-tile.png is the user's exact, unedited PNG. Rune paths are unchanged. */
+:root { --bg:#111; --panel:#1e1c17; --ink:#eee0c4; --muted:#c4b69d; --gold:#dbbd83; --header-h:clamp(70px,8vh,96px); --footer-h:clamp(44px,5.7vh,72px); --rail:clamp(12px,1.95vw,34px); --gem-size:clamp(24px,2.2vw,38px); }
+body { padding:0 0 var(--footer-h); background:#111; color:var(--ink); }
+.tabletFrame { position:fixed; inset:0; z-index:0; pointer-events:none; border:solid transparent; border-width:var(--header-h) var(--rail) var(--footer-h); border-image-source:url('assets/custom-background-clean.jpg'); border-image-slice:5.9% 1.95% 6.5% 1.95%; border-image-width:var(--header-h) var(--rail) var(--footer-h); border-image-repeat:stretch; }
+header { position:sticky; top:0; z-index:4; display:block; height:var(--header-h); padding:0; margin:0; border:0; background:#1c1b16 url('assets/custom-background-clean.jpg') left top/100% 1694.915% no-repeat; }
+/* Original Photoshop title, sampled without the colored marker layers. */
+h1 { position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); width:190px; height:56px; margin:0; padding:0; background:url('assets/custom-background-original.jpg') 50% 1.232286%/948.148148% 2635.9375% no-repeat; }
+.controls { display:contents; }
+button,.download { color:#ead3a4; font-family:Palatino,'Palatino Linotype',Georgia,serif; font-size:16px; font-weight:400; border:3px ridge #96764a; border-radius:6px; background:linear-gradient(#29271f,#11110e); box-shadow:inset 0 0 0 2px #070705,inset 0 0 0 3px #c39d5433,0 2px 4px #0009; }
+button:hover,.download:hover { color:#ffe9bb; background:linear-gradient(#403727,#19170f); border-color:#c1a06a; }
+:focus-visible { outline-color:#ffda92; }
+#viewCipher,#mute { position:absolute; top:44%; transform:translateY(-50%); width:clamp(96px,10vw,180px); height:clamp(37px,4.4vh,54px); padding:4px 9px; font-size:clamp(14px,1.3vw,20px); }
+#viewCipher { left:4.3%; } #mute { right:4.3%; }
+/* The completed reference download stays in View cipher, outside the artwork. */
+#downloadCipher { display:none!important; }
+.borderJewels { pointer-events:none; }
+.jewel { position:fixed; z-index:6; width:var(--gem-size); height:calc(var(--gem-size)*1.1); background-position:center; background-size:contain; background-repeat:no-repeat; pointer-events:none; filter:drop-shadow(0 2px 2px #000c); }
+.jewel.purple,.jewel.yellow { top:calc(var(--header-h)*.67); transform:translate(-50%,-50%); }
+.jewel.purple { left:20.96%; background-image:url('assets/gem-purple.svg'); }
+.jewel.yellow { left:79.99%; background-image:url('assets/gem-yellow.svg'); }
+.jewel.red,.jewel.blue,.jewel.green { bottom:calc((var(--footer-h) - var(--gem-size)*1.1)/2); transform:translateX(-50%); }
+.jewel.red { left:3.3%; background-image:url('assets/gem-red.svg'); }
+.jewel.blue { left:50%; background-image:url('assets/gem-blue.svg'); }
+.jewel.green { left:96.5%; background-image:url('assets/gem-green.svg'); }
+main { position:relative; z-index:1; padding:8px calc(var(--rail) + 8px) 8px; }
+.grid { align-items:center; justify-items:center; }
+button.card { width:var(--tile-width,100%); height:var(--tile-height,100%); min-height:44px; padding:0; border:0; border-radius:6%; background:none; box-shadow:none; }
+.inner { border-radius:6%; }
+.face,.tutorialTile,.keyTile { border:0; border-radius:6%; background-color:transparent; background-image:url('assets/custom-tile.png'); background-position:center; background-repeat:no-repeat; background-size:100% 100%; box-shadow:none; }
+.card:nth-child(n) .face { background-image:url('assets/custom-tile.png'); background-position:center; background-size:100% 100%; }
+.seal { display:none; }
+.cardSeal { display:block; width:58%; height:46%; background:url('assets/tablet-seal.svg') center/contain no-repeat; filter:drop-shadow(1px 1px 0 #000) drop-shadow(-.5px -.5px 0 #c9a26055); }
+.card .sigil { position:relative; z-index:1; width:68%; height:68%; }
+.back { color:#ebdcbf; }
+.card.matched .face { box-shadow:0 0 2px 1px #e9b85d,0 0 8px #e99e343b; }
+.card.matched .back { color:#f6dfae; }
+.card.matched .back::after { content:''; position:absolute; inset:3px; border-radius:5%; box-shadow:inset 0 0 0 1px #ffd17a88,0 0 8px #ffbd4f55; animation:awaken .65s ease-out; pointer-events:none; }
+@keyframes awaken { 15% { opacity:1; } 100% { opacity:.5; } }
+.saveStatus { position:relative; z-index:2; background:#17150f; }
+dialog { border:4px ridge #a4824d; border-radius:8px; background:#201e18; box-shadow:inset 0 0 0 2px #080806,0 18px 60px #000d; }
+.overlayHead { background:#23211bef; border-bottom:2px ridge #836a43; }
+h2 { font-family:Palatino,'Palatino Linotype',Georgia,serif; font-weight:400; }
+.keyTile { padding:20px; color:var(--ink); }
+.keyTile .L { color:var(--gold); text-shadow:0 1px 2px #000; }
 .tutorialTile { color:var(--ink); }
-.tutorialTile,.keyTile { background-image:linear-gradient(#19191499,#19191499),url('assets/tablet-stone.jpg'); }
-.primary { color:#17140e; background:linear-gradient(#e4c38a,#b8904f); border-color:#e4c184; box-shadow:inset 0 0 0 2px #bc9556; }
-.primary:hover { background:linear-gradient(#f3d49c,#cba25f); color:#17140e; }
-@media(max-width:480px) {
-  :root { --screen-inset:10px; }
-  .tabletFrame { inset:3px; border-width:1px; box-shadow:0 0 0 2px #0b0b09,inset 0 0 0 2px #50402a; }
-  .tabletFrame::before { inset:3px; }
-  .frameCorner { width:26px; height:26px; }
-  .frameCrest { width:96px; height:13px; }
-  .frameCrest.top { top:-6px; } .frameCrest.bottom { bottom:-6px; }
-  header { padding:7px 5px 9px; gap:5px; margin-bottom:6px; }
-  h1 { font-size:20px; letter-spacing:.02em; padding-top:5px; }
-  button,.download { padding:8px 7px; }
-  .face,.inner { border-radius:5px; }
-  .seal { inset:4px; }
+.primary { color:#16130c; background:linear-gradient(#cfaf75,#916e3c); border-color:#d8b97f; }
+.primary:hover { color:#16130c; background:linear-gradient(#e9ca94,#ac854c); }
+@media(max-width:600px) {
+  :root { --header-h:88px; --footer-h:46px; --rail:12px; --gem-size:25px; }
+  h1 { top:31px; width:120px; height:35.56px; }
+  #viewCipher,#mute { top:31px; width:98px; height:35px; font-size:13px; padding:3px 5px; border-width:2px; }
+  #viewCipher { left:calc(var(--rail) + 4px); } #mute { right:calc(var(--rail) + 4px); }
+  .jewel.purple,.jewel.yellow { top:calc(var(--header-h)*.76); }
+  main { padding:6px calc(var(--rail) + 5px) 8px; }
+  button,.download { font-size:14px; }
 }
+@media(max-width:360px) { h1 { width:98px; height:29.04px; } #viewCipher,#mute { width:82px; font-size:12px; } }
 @media(prefers-reduced-motion:reduce) { .card.matched .back::after { animation:none; } }
+/* Preserve the supplied tile proportions in the reference and tutorial too. */
+.keyFull { grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); }
+.keyTile { aspect-ratio:3/4; min-height:0; padding:14px 8px; }
+.tutorialTile { width:90px; height:120px; flex-shrink:0; }
+.jewel.red { width:calc(var(--gem-size)*.84); height:calc(var(--gem-size)*.924); bottom:calc((var(--footer-h) - var(--gem-size)*.924)/2); }
+.jewel.blue { width:calc(var(--gem-size)*1.2); height:calc(var(--gem-size)*1.32); bottom:calc((var(--footer-h) - var(--gem-size)*1.32)/2); }

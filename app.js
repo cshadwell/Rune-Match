@@ -277,11 +277,14 @@
     if(!grid.getBoundingClientRect)return;
     const rect=grid.getBoundingClientRect(),gap=window.innerWidth<=480?6:8;
     const bottomPadding=parseFloat(window.getComputedStyle(document.body).paddingBottom)||0;
-    const height=Math.max(44,window.innerHeight-(rect.top+window.scrollY)-(window.innerWidth<=480?6:10)-bottomPadding);
-    const fitted=RuneLayout.fit(rect.width,height,52,gap);
+    const bottomGap=parseFloat(window.getComputedStyle(grid.parentElement).paddingBottom)||0;
+    const height=Math.max(44,window.innerHeight-(rect.top+window.scrollY)-bottomGap-bottomPadding);
+    const fitted=RuneLayout.fit(rect.width,height,52,gap,44,1086/1448);
     grid.style.gridTemplateColumns=`repeat(${fitted.columns}, minmax(0, 1fr))`;
     grid.style.gridTemplateRows=`repeat(${fitted.rows}, minmax(44px, 1fr))`;
     grid.style.height=`${fitted.height}px`;grid.style.minHeight='0';
+    grid.style.setProperty('--tile-width',`${fitted.tileWidth}px`);
+    grid.style.setProperty('--tile-height',`${fitted.tileHeight}px`);
   }
   window.addEventListener('resize',sizeBoard);
   window.visualViewport?.addEventListener('resize',sizeBoard);
