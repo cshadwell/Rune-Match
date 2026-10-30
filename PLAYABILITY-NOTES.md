@@ -13,3 +13,7 @@ Project continuity: this note records the P03 software milestone. The master blu
 ## Approved outlined artwork correction
 
 Replaced visible font glyphs with the exact 26 paths from the supplied Rune_Match_Alphabet_Key.svg. The original reference is preserved in reference/. Only SVG viewBoxes and color are adapted for display; path coordinates and assignments remain unchanged. All 20 regression tests pass, including exact path comparison and all three rendering locations. No save format, board order, or matching rule changed.
+
+## Board-first interface
+
+Implemented the requested compact title/toolbar, screen-filling board, first-visit skippable tutorial, modal cipher, and completion-only approved SVG download. Removed visible moves/matches, restart, standing directions, and inline key. Existing save data and exact rune paths are preserved. Tutorial dismissal is saved separately from game progress. All 24 regression tests pass; real-browser tutorial, download, reload, and four screen-size checks passed.

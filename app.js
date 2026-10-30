@@ -113,11 +113,13 @@
   const $=id=>document.getElementById(id);
   const SAVE_KEY='rune-match:save:v1';
   const LOCK_NAME='rune-match:save';
+  const TUTORIAL_KEY='rune-match:tutorial:v1';
+  let tutorialStep=0;
   let game=new Game(), muted=false, lastRaw=null, processing=false, timer=null, epoch=0;
   let storageAvailable=true, returnFocus=null;
   const cards=new Map();
   const announce=message=>{$('feedback').textContent=message;};
-  const warn=message=>{$('saveStatus').textContent=message;};
+  const warn=message=>{$('saveStatus').textContent=message;sizeBoard();};
   function decode(raw) {
     const s=JSON.parse(raw);
     if (!s || s.version!==1 || typeof s.muted!=='boolean' || typeof s.revision!=='string') throw new Error('Invalid save');
@@ -182,21 +184,22 @@
       el.dataset.position=String(index+1);cards.set(id,el);$('grid').append(el);
     });
   }
-  function renderKey(target,full=false) {
+  function renderKey(target) {
     target.replaceChildren();
     const matched=game.state.matched;
-    if(full && matched.length===0) {
+    if(matched.length===0) {
       const p=document.createElement('p');p.className='emptyKey';p.textContent='Match two identical runes to discover your first letter.';target.append(p);return;
     }
     for(const letter of LETTERS.filter(l=>matched.includes(l))) {
-      const row=document.createElement('div');row.className=full?'keyTile':'keyRow unlocked';
-      row.innerHTML=full?`<div class="L">${letter}</div><div class="G">${RuneArtwork.render(letter,"keyRune")}</div>`:`<div class="keyLine"><span class="kL">${letter}</span><span class="kG">${RuneArtwork.render(letter,"keyRune")}</span></div>`;
+      const row=document.createElement('div');row.className='keyTile';
+      row.innerHTML=`<div class="L">${letter}</div><div class="G">${RuneArtwork.render(letter,"keyRune")}</div>`;
       row.setAttribute('aria-label',`${letter}: rune ${GLYPH[letter]}`);target.append(row);
     }
   }
   function render() {
     const matched=game.state.matched;
-    $('moves').textContent=String(game.state.moves);$('matches').textContent=String(matched.length);$('unlockedCount').textContent=String(matched.length);
+    $('downloadCipher').hidden=matched.length!==26;
+    $('downloadCipherDialog').hidden=matched.length!==26;
     $('mute').textContent=muted?'Sound off':'Sound on';$('mute').setAttribute('aria-pressed',String(muted));
     $('mute').setAttribute('aria-label',muted?'Sound muted. Enable sound':'Sound enabled. Mute sound');
     for(const [id,el] of cards) {
@@ -205,12 +208,12 @@
       el.setAttribute('aria-disabled',String(done || game.open.length===2));
       el.setAttribute('aria-label',`Card ${el.dataset.position}: ${done?`matched, letter ${id[0]}, rune ${GLYPH[id[0]]}`:up?`exposed rune ${GLYPH[id[0]]}`:'hidden'}`);
     }
-    renderKey($('keyGrid'));
     $('cipherTitle').textContent=matched.length===26?'Cipher Complete — A–Z Key':'Discovered Cipher — '+matched.length+' / 26';
-    if($('completeOverlay').open) renderKey($('fullKey'),true);
+    if($('completeOverlay').open) renderKey($('fullKey'));
+    sizeBoard();
   }
   function showCipher() {
-    renderKey($('fullKey'),true);
+    renderKey($('fullKey'));
     if(!$('completeOverlay').open) {
       returnFocus=document.activeElement;
       $('completeOverlay').showModal();$('closeOverlay').focus();
@@ -221,6 +224,7 @@
     if(result.complete) {announce('Cipher complete. All 26 letters are available. Return here whenever you need the key.');sound('fanfare');showCipher();}
   }
   function flip(id) {
+    if($('tutorial').open || $('completeOverlay').open) return;
     // The busy flag is set synchronously, before waiting for a cross-tab lock.
     transact(()=>{
       const result=game.select(id);
@@ -239,11 +243,48 @@
   $('closeOverlay').addEventListener('click',()=>$('completeOverlay').close());
   $('completeOverlay').addEventListener('click',e=>{if(e.target===$('completeOverlay')) $('completeOverlay').close();});
   $('completeOverlay').addEventListener('close',()=>{if(returnFocus?.isConnected)returnFocus.focus();});
-  $('startOver').addEventListener('click',()=>{
-    if(!window.confirm('Start a new game? This clears your saved board, moves, and discovered letters in this browser.')) return;
-    transact(()=>{cancelTurn();game=new Game();persist();buildBoard();render();announce('New game started. Find two identical runes.');});
+  const tutorialPages=[
+    {title:'Find matching runes',text:'Turn over two cards. Look for identical rune shapes. If they differ, they turn back over—remember where you saw them.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('A')}</span><span class="tutorialTile">${RuneArtwork.render('A')}</span>`},
+    {title:'Build your cipher',text:'Each matching pair reveals a letter. Open View cipher whenever you want to see the letters you have deciphered.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('A')}</span><span class="tutorialLetter">= A</span>`},
+    {title:'Keep what you discover',text:'Your progress saves in this browser. Return here to keep playing or consult your cipher. Match all 26 pairs to download the complete key for later in your adventure.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('S')}</span><span class="tutorialTile">${RuneArtwork.render('W')}</span>`}
+  ];
+  function renderTutorial(){
+    const page=tutorialPages[tutorialStep];
+    $('tutorialStep').textContent=`${tutorialStep+1} / ${tutorialPages.length}`;
+    $('tutorialTitle').textContent=page.title;$('tutorialText').textContent=page.text;$('tutorialArt').innerHTML=page.art();
+    $('tutorialBack').hidden=tutorialStep===0;
+    $('tutorialNext').textContent=tutorialStep===tutorialPages.length-1?'Start playing':'Next';
+  }
+  function openTutorial(){
+    if($('completeOverlay').open) $('completeOverlay').close();
+    tutorialStep=0;renderTutorial();$('tutorial').showModal();$('tutorialNext').focus();
+  }
+  function finishTutorial(){
+    try {localStorage.setItem(TUTORIAL_KEY,'seen');} catch {}
+    $('tutorial').close();
+  }
+  $('tutorialNext').addEventListener('click',()=>{
+    if(tutorialStep===tutorialPages.length-1)finishTutorial();
+    else {tutorialStep++;renderTutorial();$('tutorialNext').focus();}
   });
-  $('keyJump').addEventListener('click',()=>{$('keyDetails').open=true;});
+  $('tutorialBack').addEventListener('click',()=>{tutorialStep=Math.max(0,tutorialStep-1);renderTutorial();$('tutorialNext').focus();});
+  $('skipTutorial').addEventListener('click',finishTutorial);
+  $('tutorial').addEventListener('cancel',e=>{e.preventDefault();finishTutorial();});
+  $('tutorial').addEventListener('close',()=>{$('viewCipher').focus();});
+  $('howToPlay').addEventListener('click',openTutorial);
+  function sizeBoard(){
+    const grid=$('grid');
+    if(!grid.getBoundingClientRect)return;
+    const rect=grid.getBoundingClientRect(),gap=window.innerWidth<=480?6:8;
+    const height=Math.max(44,window.innerHeight-(rect.top+window.scrollY)-(window.innerWidth<=480?6:10));
+    const fitted=RuneLayout.fit(rect.width,height,52,gap);
+    grid.style.gridTemplateColumns=`repeat(${fitted.columns}, minmax(0, 1fr))`;
+    grid.style.gridTemplateRows=`repeat(${fitted.rows}, minmax(44px, 1fr))`;
+    grid.style.height=`${fitted.height}px`;grid.style.minHeight='0';
+  }
+  window.addEventListener('resize',sizeBoard);
+  window.visualViewport?.addEventListener('resize',sizeBoard);
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(sizeBoard).observe($('gameHeader'));
   window.addEventListener('storage',e=>{if(e.key===SAVE_KEY || e.key===null) remoteChanged();});
   window.addEventListener('pageshow',()=>remoteChanged());
   document.addEventListener('visibilitychange',()=>{
@@ -264,6 +305,7 @@
     }
   } catch {storageFailure();}
   buildBoard();render();
+  try {if(localStorage.getItem(TUTORIAL_KEY)!=='seen')openTutorial();} catch {openTutorial();}
   if(game.state.matched.length===26) announce('Welcome back. Your complete cipher is available through View cipher.');
   // Initialize under the same lock as every other writer. A newer tab wins.
   transact(()=>{
