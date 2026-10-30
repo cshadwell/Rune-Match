@@ -275,10 +275,15 @@
   function sizeBoard(){
     const grid=$('grid');
     if(!grid.getBoundingClientRect)return;
+    // Safari toolbars change the visual viewport without changing innerHeight.
+    const viewport=window.visualViewport;
+    document.documentElement.style.setProperty('--screen-height',`${viewport?.height || window.innerHeight}px`);
     const rect=grid.getBoundingClientRect(),gap=window.innerWidth<=480?6:8;
     const bottomPadding=parseFloat(window.getComputedStyle(document.body).paddingBottom)||0;
     const bottomGap=parseFloat(window.getComputedStyle(grid.parentElement).paddingBottom)||0;
-    const height=Math.max(44,window.innerHeight-(rect.top+window.scrollY)-bottomGap-bottomPadding);
+    const main=grid.parentElement;
+    const topGap=parseFloat(window.getComputedStyle(main).paddingTop)||0;
+    const height=Math.max(44,main.clientHeight ? main.clientHeight-topGap-bottomGap : window.innerHeight-(rect.top+window.scrollY)-bottomGap-bottomPadding);
     const fitted=RuneLayout.fit(rect.width,height,52,gap,44,1086/1448);
     grid.style.gridTemplateColumns=`repeat(${fitted.columns}, minmax(0, 1fr))`;
     grid.style.gridTemplateRows=`repeat(${fitted.rows}, minmax(44px, 1fr))`;
@@ -288,6 +293,7 @@
   }
   window.addEventListener('resize',sizeBoard);
   window.visualViewport?.addEventListener('resize',sizeBoard);
+  window.addEventListener('orientationchange',sizeBoard);
   if(typeof ResizeObserver!=='undefined')new ResizeObserver(sizeBoard).observe($('gameHeader'));
   window.addEventListener('storage',e=>{if(e.key===SAVE_KEY || e.key===null) remoteChanged();});
   window.addEventListener('pageshow',()=>remoteChanged());

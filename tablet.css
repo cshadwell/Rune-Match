@@ -63,3 +63,21 @@ h2 { font-family:Palatino,'Palatino Linotype',Georgia,serif; font-weight:400; }
 .tutorialTile { width:90px; height:120px; flex-shrink:0; }
 .jewel.red { width:calc(var(--gem-size)*.84); height:calc(var(--gem-size)*.924); bottom:calc((var(--footer-h) - var(--gem-size)*.924)/2); }
 .jewel.blue { width:calc(var(--gem-size)*1.2); height:calc(var(--gem-size)*1.32); bottom:calc((var(--footer-h) - var(--gem-size)*1.32)/2); }
+
+/* One visible viewport for the frame, controls and scrollable play area.
+   Keep the artwork inside Safari's safe area and browser toolbar bounds. */
+:root { --screen-height:100vh; }
+@supports(height:100dvh) { :root { --screen-height:100dvh; } }
+html { height:100%; overflow:hidden; }
+body { position:fixed; top:env(safe-area-inset-top,0px); left:env(safe-area-inset-left,0px); right:env(safe-area-inset-right,0px); height:calc(var(--screen-height) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)); overflow:hidden; display:flex; flex-direction:column; }
+.tabletFrame { position:absolute; width:100%; height:100%; }
+header { position:relative; flex:0 0 var(--header-h); background:none; }
+main { flex:1 1 auto; min-height:0; margin-inline:var(--rail); padding-inline:8px; overflow:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-gutter:stable; }
+.jewel { position:absolute; }
+.grid { min-height:0; }
+@media(max-height:480px) {
+  :root { --header-h:64px; --footer-h:32px; --gem-size:20px; }
+  h1 { top:27px; width:120px; height:35.56px; }
+  #viewCipher,#mute { top:27px; }
+  .jewel.purple,.jewel.yellow { top:48px; }
+}
