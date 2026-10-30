@@ -119,3 +119,15 @@ h1 { position:static; transform:none; justify-self:center; width:clamp(90px,24vw
 .jewel::before { display:none; }
 .jewel { filter:saturate(.68) brightness(.87) drop-shadow(0 1px 0 #cfb77f66); }
 .jewel::after { background:linear-gradient(150deg,#0004,transparent 48%,#0003); }
+
+/* Real 44px targets, with the existing gem artwork centered inside them. */
+.gemButton { position:absolute; z-index:6; width:44px; height:44px; margin:0; padding:0; border:0; border-radius:10px; background:none; box-shadow:none; pointer-events:auto; touch-action:manipulation; cursor:pointer; transform:translate(-50%,-50%); }
+.gemButton:hover { background:none; border:0; }
+.gemButton .jewel { position:absolute; left:50%; top:50%; bottom:auto; transform:translate(-50%,-50%); pointer-events:none; }
+.gem-purple,.gem-yellow { top:calc(var(--header-h) - 16px); }
+.gem-purple { left:20.96%; } .gem-yellow { left:79.99%; }
+.gem-red,.gem-blue,.gem-green { top:calc(100% - var(--footer-h)/2); }
+.gem-red { left:max(22px,3.3%); } .gem-blue { left:50%; } .gem-green { left:min(calc(100% - 22px),96.5%); }
+.gemButton:active .jewel { filter:saturate(.9) brightness(1.12) drop-shadow(0 0 3px #dbc28a); }
+.gemButton:focus-visible { outline:2px solid var(--gold); outline-offset:-2px; }
+@media(max-height:480px) { :root { --footer-h:44px; } .gem-purple,.gem-yellow { top:calc(var(--header-h) - 14px); } }

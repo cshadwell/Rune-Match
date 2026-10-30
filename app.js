@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  // --- Audio (no external files)
+  // --- Synthesized game feedback; gem recordings are handled separately.
   const AudioFX = (() => {
     let ctx = null;
     const ensure = () => ctx ?? (ctx = new (window.AudioContext || window.webkitAudioContext)());
@@ -118,6 +118,32 @@
   let game=new Game(), muted=false, lastRaw=null, processing=false, timer=null, epoch=0;
   let storageAvailable=true, returnFocus=null;
   const cards=new Map();
+  let gemPlayer=null,gemPlayerMuted=false;
+  function prepareGemAudio(){
+      if(!gemPlayer){
+        const Context=window.AudioContext||window.webkitAudioContext;
+        gemPlayer=GemAudio.create({context:new Context(),fetchAudio:url=>fetch(url),
+          onError:()=>announce('This gem sound could not play. Try again.')});
+        gemPlayer.preload();
+      }
+  }
+  function playGem(color){
+    if(muted)return;
+    try {
+      prepareGemAudio();
+      gemPlayer.play(color);
+    }catch{announce('Gem audio is unavailable in this browser.');}
+  }
+  for(const color of ['blue','green','purple','yellow','red']){
+    const button=$('gem-'+color);
+    button.addEventListener('pointerdown',event=>{
+      if(event.button!==0)return;
+      playGem(color);
+    });
+    // Keyboard and assistive technology clicks have no pointer click count.
+    button.addEventListener('click',event=>{if(event.detail===0)playGem(color);});
+  }
+
   const announce=message=>{$('feedback').textContent=message;};
   const warn=message=>{$('saveStatus').textContent=message;sizeBoard();};
   function decode(raw) {
@@ -201,6 +227,7 @@
     $('downloadCipher').hidden=matched.length!==26;
     $('downloadCipherDialog').hidden=matched.length!==26;
     $('mute').textContent=muted?'Sound off':'Sound on';$('mute').setAttribute('aria-pressed',String(muted));
+    if(gemPlayer && gemPlayerMuted!==muted){gemPlayer.setMuted(muted);gemPlayerMuted=muted;}
     $('mute').setAttribute('aria-label',muted?'Sound muted. Enable sound':'Sound enabled. Mute sound');
     for(const [id,el] of cards) {
       const done=matched.includes(id[0]),up=done||game.open.includes(id);
@@ -324,6 +351,7 @@
       }
     }
   } catch {storageFailure();}
+  try {prepareGemAudio();} catch {} // Preload without starting audio; gestures resume it.
   buildBoard();render();
   try {if(localStorage.getItem(TUTORIAL_KEY)!=='seen')openTutorial();} catch {openTutorial();}
   if(game.state.matched.length===26) announce('Welcome back. Your complete cipher is available through View cipher.');

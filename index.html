@@ -54,11 +54,11 @@
     @media(max-width:480px) { header { padding:8px 10px; align-items:flex-start; } h1 { padding-top:7px; } .controls { gap:5px; } button,.download { font-size:12px; padding:8px; } main { padding:0 6px 6px; } .grid { gap:6px; } .seal { inset:5px; } .face,.inner { border-radius:9px; } }
     @media(prefers-reduced-motion:reduce) { .inner { transition:none; } }
   </style>
-  <link rel="stylesheet" href="tablet.css?v=aligned-bar-4">
+  <link rel="stylesheet" href="tablet.css?v=gem-notes-5">
 </head>
 <body>
   <div class="tabletFrame" aria-hidden="true"></div>
-  <div class="borderJewels" aria-hidden="true"><span class="jewel purple" data-gem="purple"></span><span class="jewel yellow" data-gem="yellow"></span><span class="jewel red" data-gem="red"></span><span class="jewel blue" data-gem="blue"></span><span class="jewel green" data-gem="green"></span></div>
+  <div class="borderJewels" role="group" aria-label="Musical gems"><button class="gemButton gem-purple" id="gem-purple" type="button" aria-label="Play purple gem"><span class="jewel purple" aria-hidden="true"></span></button><button class="gemButton gem-yellow" id="gem-yellow" type="button" aria-label="Play yellow gem"><span class="jewel yellow" aria-hidden="true"></span></button><button class="gemButton gem-red" id="gem-red" type="button" aria-label="Play red gem"><span class="jewel red" aria-hidden="true"></span></button><button class="gemButton gem-blue" id="gem-blue" type="button" aria-label="Play blue gem"><span class="jewel blue" aria-hidden="true"></span></button><button class="gemButton gem-green" id="gem-green" type="button" aria-label="Play green gem"><span class="jewel green" aria-hidden="true"></span></button></div>
   <header id="gameHeader">
     <h1 aria-label="Rune Match"><span class="srOnly">Rune Match</span></h1>
     <div class="controls">
@@ -89,6 +89,6 @@
     <div class="tutorialActions"><button id="skipTutorial" type="button">Skip tutorial</button><div><button id="tutorialBack" type="button">Back</button><button id="tutorialNext" class="primary" type="button">Next</button></div></div>
   </dialog>
   <noscript><p>This matching game needs JavaScript enabled to play.</p></noscript>
-  <script src="engine.js"></script><script src="rune-art.js"></script><script src="layout.js?v=aligned-bar-4"></script><script src="app.js?v=aligned-bar-4"></script>
+  <script src="engine.js"></script><script src="rune-art.js"></script><script src="layout.js?v=gem-notes-5"></script><script src="gem-audio.js?v=gem-notes-5"></script><script src="app.js?v=gem-notes-5"></script>
 </body>
 </html>
