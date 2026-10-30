@@ -272,6 +272,16 @@
   $('tutorial').addEventListener('cancel',e=>{e.preventDefault();finishTutorial();});
   $('tutorial').addEventListener('close',()=>{$('viewCipher').focus();});
   $('howToPlay').addEventListener('click',openTutorial);
+  $('startOver').addEventListener('click',()=>{
+    if(!window.confirm('Start over? This clears all discovered letters and shuffles a new board. Your sound preference will be kept.')) return;
+    transact(()=>{
+      cancelTurn();game=new Game();persist();buildBoard();render();
+      $('completeOverlay').close();
+      if($('grid').parentElement) $('grid').parentElement.scrollTop=0;
+      announce('New game started. All discovered letters have been cleared.');
+      cards.values().next().value?.focus();
+    });
+  });
   function sizeBoard(){
     const grid=$('grid');
     if(!grid.getBoundingClientRect)return;

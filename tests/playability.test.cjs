@@ -108,3 +108,25 @@ test('portrait artwork keeps its exact aspect ratio and accessible touch size',(
   assert.ok(r.tileHeight<=(r.height-gap*(r.rows-1))/r.rows+1e-10);
  }
 });
+
+test('start over clears progress, cancels pending turns, retains mute and survives reload',async()=>{
+ const b=browser();await tick();await b.control('mute');
+ await b.click('A-0');await b.click('A-1');
+ await b.control('viewCipher');await b.control('startOver');
+ assert.equal(b.els.completeOverlay.open,false);assert.equal(b.timers.size,0);
+ assert.deepEqual(b.saved().game.matched,[]);assert.equal(b.saved().game.moves,0);
+ assert.equal(b.saved().muted,true);assert.equal(b.els.grid.children.length,52);
+ b.settle();const r=browser({store:b.store});await tick();
+ assert.deepEqual(r.saved().game.matched,[]);assert.equal(r.els.downloadCipherDialog.hidden,true);
+});
+test('cancelling start over preserves discovered letters and the open cipher',async()=>{
+ const b=browser({confirm:false});await tick();await b.click('A-0');await b.click('A-1');b.settle();
+ await b.control('viewCipher');const before=b.store.get(KEY);await b.control('startOver');
+ assert.equal(b.store.get(KEY),before);assert.equal(b.els.completeOverlay.open,true);
+});
+test('start over propagates to another open tab',async()=>{
+ const store=new Map(),locks=makeLocks();const a=browser({store,locks}),b=browser({store,locks});await tick();await tick();
+ await a.click('A-0');await a.click('A-1');a.settle();await b.event('storage',{key:KEY});
+ await a.control('viewCipher');await a.control('startOver');await b.event('storage',{key:KEY});
+ assert.deepEqual(b.saved().game.matched,[]);assert.equal(b.find('A-0').classes.has('matched'),false);
+});

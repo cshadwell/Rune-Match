@@ -1,9 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-  <path d="M50 8 92 50 50 92 8 50Z" stroke="#9e7d45" stroke-width="2"/>
-  <path d="M50 17 83 50 50 83 17 50Z" stroke="#5b472b" stroke-width="2"/>
-  <path d="M50 4v22m0 48v22M4 50h22m48 0h22" stroke="#b29357" stroke-width="1.5"/>
-  <circle cx="50" cy="50" r="17" fill="#1b1a15" stroke="#a1834a" stroke-width="2"/>
-  <circle cx="50" cy="50" r="10" stroke="#57472c" stroke-width="3"/>
-  <circle cx="50" cy="50" r="4" fill="#b7985c"/>
-  <path d="m50 28 5 5H45Zm22 22-5 5V45ZM50 72l-5-5h10ZM28 50l5-5v10Z" fill="#8a6c3c"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 110" fill="none">
+ <defs>
+  <linearGradient id="bronze" x1="20" y1="15" x2="75" y2="95" gradientUnits="userSpaceOnUse"><stop stop-color="#d0ab70"/><stop offset=".25" stop-color="#896037"/><stop offset=".5" stop-color="#a57a47"/><stop offset=".8" stop-color="#513a22"/><stop offset="1" stop-color="#987344"/></linearGradient>
+  <radialGradient id="boss" cx=".32" cy=".22" r=".8"><stop stop-color="#c6a370"/><stop offset=".45" stop-color="#8a633b"/><stop offset="1" stop-color="#38281b"/></radialGradient>
+  <filter id="set" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.2" stdDeviation=".7" flood-color="#d5bd87" flood-opacity=".3"/><feDropShadow dx="0" dy="-1" stdDeviation="1.2" flood-color="#000" flood-opacity="1"/></filter>
+ </defs>
+ <!-- Broad black channels cut into the stone, with worn metal laid inside. -->
+ <g filter="url(#set)" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M50 18 86 55 50 92 14 55Z" stroke="#090906" stroke-width="8"/>
+  <circle cx="50" cy="55" r="19" stroke="#090906" stroke-width="9"/>
+  <path d="M50 18 86 55 50 92 14 55Z" stroke="url(#bronze)" stroke-width="4.2"/>
+  <circle cx="50" cy="55" r="19" stroke="url(#bronze)" stroke-width="4.3"/>
+  <path d="M50 5v12m0 77v12M2 55h11m74 0h11" stroke="#090906" stroke-width="4"/>
+  <path d="M50 5v10m0 81v10M2 55h9m78 0h9" stroke="url(#bronze)" stroke-width="1.6"/>
+  <path d="m50 24 4 7-4-2-4 2Zm29 31-7 4 2-4-2-4ZM50 85l-4-7 4 2 4-2ZM21 55l7-4-2 4 2 4Z" fill="url(#bronze)" stroke="#221b12" stroke-width=".8"/>
+  <circle cx="50" cy="55" r="7" fill="url(#boss)" stroke="#231c13" stroke-width="1.7"/>
+ </g>
+ <path d="M22 45 41 25m-4 20a19 19 0 0 1 17-9" stroke="#e3c18a" stroke-width=".8" opacity=".45"/>
+ <!-- Small breaks keep the inlay aged rather than mechanically pristine. -->
+ <path d="m72 38 4 3M29 76l3-3" stroke="#17150f" stroke-width="2"/>
 </svg>
