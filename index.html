@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Rune Match — Learn the Cipher</title>
+  <link rel="stylesheet" href="runes.css">
   <style>
     :root{
       --bg:#0b0f14;
@@ -147,7 +148,7 @@
     }
     .sigil text{
       font-size: 54px;
-      font-family: "Noto Sans Runic","Segoe UI Symbol","Apple Symbols","Symbola","Noto Sans Symbols2",serif;
+      font-family: "Rune Match Runic",serif;
       fill: var(--ink);
       dominant-baseline: middle;
       text-anchor: middle;
@@ -211,7 +212,7 @@
     }
     .kG{
       font-size: 22px;
-      font-family: "Noto Sans Runic","Segoe UI Symbol","Apple Symbols","Symbola",serif;
+      font-family: "Rune Match Runic",serif;
       color: var(--ink);
       line-height: 1;
     }
@@ -220,7 +221,7 @@
       border-color: rgba(240,213,138,.40);
       background: rgba(240,213,138,.08);
     }
-    .unlocked     .footerNote{
+    .footerNote{
       margin-top:10px;
       color:var(--muted);
       font-size:12px;
@@ -312,7 +313,7 @@
     }
     .keyTile .G{
       font-size: 34px;
-      font-family: "Noto Sans Runic","Segoe UI Symbol","Apple Symbols","Symbola",serif;
+      font-family: "Rune Match Runic",serif;
       color: var(--ink);
       line-height: 1;
     }
@@ -383,22 +384,46 @@
       .kG{ font-size:20px; }
     }
 
+
+    a { color:var(--gold); }
+    :focus-visible { outline:3px solid var(--gold); outline-offset:3px; }
+    .quickNav { position:sticky; top:0; z-index:10; display:flex; gap:20px; padding:10px 18px; background:var(--bg); max-width:1200px; margin:auto; }
+    #boardTop, #keyDetails { scroll-margin-top:56px; }
+    .panelHead { flex-wrap:wrap; }
+    .controls { display:flex; flex-wrap:wrap; gap:8px; }
+    .feedback,.saveStatus { margin:0; padding:10px 12px; font-size:13px; line-height:1.4; }
+    .saveStatus:empty { display:none; }
+    .saveStatus { color:var(--gold); }
+    button.card { padding:0; border:0; border-radius:14px; background:transparent; font-weight:normal; }
+    button.card:active { transform:none; }
+    button.card[aria-disabled="true"] { cursor:default; }
+    .keyGrid:empty::before { content:'Your discovered letters will appear here.'; color:var(--muted); font-size:13px; grid-column:1 / -1; }
+    dialog.overlay { margin:0; width:100%; max-width:none; height:100%; max-height:none; border:0; color:var(--ink); }
+    dialog.overlay[open] { display:flex; }
+    dialog.overlay::backdrop { background:rgba(0,0,0,.7); }
+    .overlayCard { background:var(--panel); }
+    .emptyKey { padding:14px; color:var(--muted); }
+    @media (prefers-reduced-motion:reduce) { .inner { transition:none; } button:active { transform:none; } }
   </style>
 </head>
 <body>
 <header>
   <h1>Rune Match — Learn the Cipher</h1>
-  <p class="sub">Flip two tiles. If they match, that glyph unlocks a letter in the Key. Find all 26 letters to complete the cipher. This game is best viewed on an iPad or laptop.</p>
+  <p class="sub">Flip two tiles. If they match, that glyph unlocks a letter in the Key. Find all 26 letters to complete the cipher. Your progress saves in this browser. Keep using this browser to return to your cipher later.</p>
 </header>
 
+<nav class="quickNav" aria-label="Game navigation"><a href="#boardTop">Matching board</a><a href="#keyDetails" id="keyJump">Cipher key</a></nav>
 <div class="wrap">
   <section class="boardPanel">
-    <div class="panelHead">
+    <div class="panelHead" id="boardTop" tabindex="-1">
       <div class="stats">
         <span class="pill">Moves: <strong id="moves">0</strong></span>
         <span class="pill">Matches: <strong id="matches">0</strong> / 26</span>
       </div>
+      <div class="controls"><button id="mute" type="button" aria-pressed="false">Sound on</button><button id="viewCipher" type="button">View cipher</button><button id="startOver" type="button">Start over</button></div>
     </div>
+<p id="saveStatus" role="status" class="saveStatus"></p>
+<p id="feedback" role="status" aria-live="polite" class="feedback">Find two identical runes to reveal a letter.</p>
 <div id="grid" class="grid" aria-label="Matching board"></div>
   </section>
 
@@ -413,7 +438,7 @@
       <div class="keyBody">
         <div id="keyGrid" class="keyGrid"></div>
         <div class="footerNote">
-          Tip: On phones, you can collapse/expand this Key panel using the bar above.
+          Letters appear in alphabetical order. <a href="#boardTop">Back to matching board</a>.
         </div>
       </div>
     </details>
@@ -421,361 +446,20 @@
 
 </div>
 
-<div id="completeOverlay" class="overlay" role="dialog" aria-modal="true" aria-label="Cipher key">
+<dialog id="completeOverlay" class="overlay" aria-labelledby="cipherTitle">
   <div class="overlayCard">
     <div class="overlayHead">
       <div>
-        <h2 class="overlayTitle">Cipher Complete — A–Z Key</h2>
-        <p class="overlaySub">Use this key to decode the message. Each letter is shown above its glyph.</p>
+        <h2 id="cipherTitle" class="overlayTitle">Cipher Key</h2>
+        <p class="overlaySub">Use your unlocked letters to decode the message. Each letter is shown above its rune.</p>
       </div>
       <button id="closeOverlay" class="overlayClose" aria-label="Close">Close</button>
     </div>
     <div id="fullKey" class="keyFull"></div>
   </div>
-</div>
+</dialog>
 
-<script>
-(() => {
-  // --- Cipher map (your chosen glyphs)
-  const GLYPH = {
-    A:"ᛉ", B:"ᚦ", C:"ᛞ", D:"ᚸ", E:"ᛇ", F:"ᚾ", G:"ᛈ", H:"ᚢ", I:"ᛃ", J:"ᛟ", K:"ᚲ", L:"ᛏ", M:"ᚠ",
-    N:"ᛜ", O:"ᚨ", P:"ᛠ", Q:"ᛗ", R:"ᛣ", S:"ᛊ", T:"ᚷ", U:"ᛚ", V:"ᛁ", W:"ᛥ", X:"ᚺ", Y:"ᛡ", Z:"ᚫ"
-  };
-  const LETTERS = Object.keys(GLYPH);
-
-  // --- Audio (no external files)
-  const AudioFX = (() => {
-    let ctx = null;
-    const ensure = () => ctx ?? (ctx = new (window.AudioContext || window.webkitAudioContext)());
-    const now = () => ensure().currentTime;
-
-    function tone({type="sine", freq=440, dur=0.12, gain=0.06, detune=0, ramp=true}) {
-      const c = ensure();
-      const o = c.createOscillator();
-      const g = c.createGain();
-      o.type = type;
-      o.frequency.value = freq;
-      o.detune.value = detune;
-      g.gain.value = 0.0001;
-      o.connect(g);
-      g.connect(c.destination);
-      const t0 = now();
-      o.start(t0);
-      if (ramp) {
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(gain, t0 + 0.015);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      } else {
-        g.gain.setValueAtTime(gain, t0);
-        g.gain.setValueAtTime(0.0001, t0 + dur);
-      }
-      o.stop(t0 + dur + 0.01);
-    }
-
-    function swish() {
-      // quick upward glide = "flip"
-      const c = ensure();
-      const o = c.createOscillator();
-      const g = c.createGain();
-      o.type = "triangle";
-      g.gain.value = 0.0001;
-      o.connect(g); g.connect(c.destination);
-      const t0 = now();
-      o.frequency.setValueAtTime(260, t0);
-      o.frequency.exponentialRampToValueAtTime(820, t0 + 0.12);
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(0.06, t0 + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.14);
-      o.start(t0); o.stop(t0 + 0.16);
-    }
-
-    function buzz() {
-      // low short "wrong"
-      tone({type:"sawtooth", freq:110, dur:0.18, gain:0.05});
-      tone({type:"sawtooth", freq:92, dur:0.18, gain:0.04, detune:-20});
-    }
-
-    function ding() {
-      // pleasant "correct"
-      tone({type:"sine", freq:784, dur:0.14, gain:0.05});
-      tone({type:"sine", freq:1046.5, dur:0.12, gain:0.04, detune:5});
-    }
-
-    function brassNote(freq, startOffset){
-      // "brassy" note: saw + lowpass filter + fast attack, short decay
-      const c = ensure();
-      const t0 = now() + (startOffset || 0);
-
-      const o1 = c.createOscillator();
-      const o2 = c.createOscillator();
-      const g = c.createGain();
-      const f = c.createBiquadFilter();
-
-      o1.type = "sawtooth";
-      o2.type = "square";
-      o1.frequency.setValueAtTime(freq, t0);
-      o2.frequency.setValueAtTime(freq * 2, t0);
-
-      f.type = "lowpass";
-      f.frequency.setValueAtTime(1400, t0);
-      f.frequency.exponentialRampToValueAtTime(800, t0 + 0.18);
-
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(0.10, t0 + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28);
-
-      o1.connect(f); o2.connect(f);
-      f.connect(g); g.connect(c.destination);
-
-      // tiny pitch "blat" for trumpet feel
-      o1.frequency.exponentialRampToValueAtTime(freq * 0.995, t0 + 0.10);
-
-      o1.start(t0); o2.start(t0);
-      o1.stop(t0 + 0.30); o2.stop(t0 + 0.30);
-    }
-
-    function fanfare(){
-      // Short celebratory fanfare: C5–E5–G5–C6 with a little ending flourish
-      // Frequencies (Hz): C5 523.25, E5 659.25, G5 783.99, C6 1046.5, G5 783.99, E5 659.25
-      const seq = [
-        {f:523.25, t:0.00},
-        {f:659.25, t:0.16},
-        {f:783.99, t:0.32},
-        {f:1046.5, t:0.48},
-        {f:783.99, t:0.72},
-        {f:659.25, t:0.88},
-        {f:783.99, t:1.04},
-      ];
-      seq.forEach(n => brassNote(n.f, n.t));
-    }
-
-    return { swish, buzz, ding, fanfare, resume: () => ensure().resume() };
-  })();
-
-  // --- DOM
-  const gridEl = document.getElementById("grid");
-  const movesEl = document.getElementById("moves");
-  const matchesEl = document.getElementById("matches");
-  const unlockedCountEl = document.getElementById("unlockedCount");
-  const keyGridEl = document.getElementById("keyGrid");
-  const overlayEl = document.getElementById("completeOverlay");
-  const fullKeyEl = document.getElementById("fullKey");
-  const closeOverlayBtn = document.getElementById("closeOverlay");
-
-  // --- Game state
-  let deck = [];
-  let first = null;
-  let second = null;
-  let lock = false;
-  let moves = 0;
-  let matches = 0;
-  const unlocked = new Set();
-
-  // --- Helpers
-  function safeId(){
-    try{
-      if (crypto && typeof crypto.randomUUID === "function") return safeId();
-    }catch(e){}
-    // Fallback for environments where WebCrypto/randomUUID is unavailable (common on some mobile file viewers)
-    return "id-" + Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
-  }
-
-  function shuffle(arr){
-    for (let i = arr.length - 1; i > 0; i--){
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  function makeSigilSVG(char){
-    // Inline SVG = "image-like" but stays crisp and scalable
-    return `
-      <svg class="sigil" viewBox="0 0 100 100" role="img" aria-label="glyph">
-        <text x="50" y="54">${char}</text>
-      </svg>
-    `;
-  }
-
-  function buildKeyPanel(){
-    // Start empty. Rows appear only when a match is found.
-    keyGridEl.innerHTML = "";
-  }
-
-  function updateKey(letter){
-    // Create a row only when unlocked: "LETTER  GLYPH"
-    let row = keyGridEl.querySelector(`.keyRow[data-letter="${letter}"]`);
-    if (!row){
-      row = document.createElement("div");
-      row.className = "keyRow unlocked";
-      row.dataset.letter = letter;
-
-      const line = document.createElement("div");
-      line.className = "keyLine";
-      line.innerHTML = `<span class="kL">${letter}</span><span class="kG">${GLYPH[letter]}</span>`;
-      row.appendChild(line);
-
-      keyGridEl.appendChild(row);
-    }
-    unlockedCountEl.textContent = String(unlocked.size);
-  }
-
-  function updateStats(){
-    movesEl.textContent = String(moves);
-    matchesEl.textContent = String(matches);
-    unlockedCountEl.textContent = String(unlocked.size);
-  }
-
-  function resetGame(){
-    first = null; second = null; lock = false;
-    moves = 0; matches = 0; unlocked.clear();
-    updateStats();
-    buildKeyPanel();
-
-    // Create 52 cards (26 pairs)
-    deck = [];
-    for (const letter of LETTERS){
-      deck.push({ letter, glyph: GLYPH[letter], id: safeId() });
-      deck.push({ letter, glyph: GLYPH[letter], id: safeId() });
-    }
-    shuffle(deck);
-
-    gridEl.innerHTML = "";
-    for (const card of deck){
-      const el = document.createElement("div");
-      el.className = "card";
-      el.dataset.letter = card.letter;
-      el.dataset.id = card.id;
-
-      el.innerHTML = `
-        <div class="inner">
-          <div class="face front">
-            <div class="seal"></div>
-            <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true">
-              <text x="50" y="54">✦</text>
-            </svg>
-          </div>
-          <div class="face back">
-            <div class="seal"></div>
-            ${makeSigilSVG(card.glyph)}
-          </div>
-        </div>
-      `;
-      el.addEventListener("click", () => onFlip(el), { passive: true });
-      gridEl.appendChild(el);
-    }
-  }
-
-  async function onFlip(cardEl){
-    if (lock) return;
-    if (cardEl.classList.contains("matched")) return;
-    if (cardEl === first) return;
-
-    // iOS: resume audio on first interaction
-    try { await AudioFX.resume(); } catch(e){}
-
-    AudioFX.swish();
-    cardEl.classList.add("flipped");
-
-    if (!first){
-      first = cardEl;
-      return;
-    }
-
-    second = cardEl;
-    moves += 1;
-    updateStats();
-
-    const a = first.dataset.letter;
-    const b = second.dataset.letter;
-
-    if (a === b){
-      // Match!
-      lock = true;
-      setTimeout(() => {
-        first.classList.add("matched","locked");
-        second.classList.add("matched","locked");
-        matches += 1;
-        unlocked.add(a);
-        updateKey(a);
-        updateStats();
-
-        AudioFX.ding();
-
-        first = null; second = null; lock = false;
-
-        if (matches === 26){
-          celebrate();
-        }
-      }, 220);
-    } else {
-      // Miss
-      lock = true;
-      setTimeout(() => {
-        AudioFX.buzz();
-        first.classList.remove("flipped");
-        second.classList.remove("flipped");
-        first = null; second = null; lock = false;
-      }, 1000);
-    }
-  }
-
-
-  function buildFullKey(){
-    fullKeyEl.innerHTML = "";
-    for (const letter of LETTERS){
-      const tile = document.createElement("div");
-      tile.className = "keyTile";
-      tile.innerHTML = `<div class="L">${letter}</div><div class="G">${GLYPH[letter]}</div>`;
-      fullKeyEl.appendChild(tile);
-    }
-  }
-
-  function showOverlay(){
-    buildFullKey();
-    overlayEl.classList.add("show");
-    // allow ESC to close
-    document.addEventListener("keydown", onEscClose);
-  }
-
-  function hideOverlay(){
-    overlayEl.classList.remove("show");
-    document.removeEventListener("keydown", onEscClose);
-  }
-
-  function onEscClose(e){
-    if (e.key === "Escape") hideOverlay();
-  }
-
-  // Close overlay on button or background click
-  if (closeOverlayBtn && overlayEl){
-    closeOverlayBtn.addEventListener("click", hideOverlay);
-    overlayEl.addEventListener("click", (e) => {
-      if (e.target === overlayEl) hideOverlay();
-    });
-  }
-
-
-  function celebrate(){
-    // Celebration: trumpet fanfare + full-screen A–Z key overlay
-    try { AudioFX.fanfare(); } catch(e){}
-    showOverlay();
-
-    // Also flash the header briefly
-    const h1 = document.querySelector("h1");
-    const orig = h1.textContent;
-    h1.textContent = "Cipher Complete — All Letters Unlocked";
-    h1.style.color = "var(--gold)";
-    setTimeout(() => {
-      h1.textContent = orig;
-      h1.style.color = "";
-    }, 3500);
-  }
-
-  // Start
-  resetGame();
-})();
-</script>
-
+<script src="engine.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
