@@ -90,25 +90,28 @@ main { flex:1 1 auto; min-height:0; margin-inline:var(--rail); padding-inline:8p
 .jewel { filter:saturate(.63) brightness(.79) drop-shadow(0 1px 0 #cfb77f66); isolation:isolate; }
 .jewel::before { content:''; position:absolute; inset:-4px; z-index:-1; clip-path:polygon(24% 4%,76% 4%,100% 61%,50% 100%,0 61%); background:linear-gradient(135deg,#080805 15%,#211c13 52%,#ae8a52 100%); }
 .jewel::after { content:''; position:absolute; inset:4px; clip-path:polygon(24% 4%,76% 4%,100% 61%,50% 100%,0 61%); background:linear-gradient(150deg,#0009,transparent 48%,#0004); pointer-events:none; }
-/* A shared row aligns all controls; the gems occupy a separate lower band. */
+/* Header slots follow the Photoshop bar: centered title, inset controls.
+   Narrow screens reserve a lower gem band instead of allowing collisions. */
 :root { --header-h:90px; }
-header { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; column-gap:12px; padding:6px calc(var(--rail) + 10px) 30px; }
-h1 { position:static; transform:none; width:clamp(90px,24vw,190px); height:auto; aspect-ratio:190/56; }
-#viewCipher,#mute { position:static; transform:none; top:auto; width:auto; max-width:100%; height:40px; padding:5px 12px; white-space:nowrap; }
-#viewCipher { grid-column:1; grid-row:1; justify-self:start; }
-h1 { grid-column:2; grid-row:1; }
-#mute { grid-column:3; grid-row:1; justify-self:end; }
+header { display:grid; grid-template-columns:18% minmax(0,1fr) 18%; align-items:center; column-gap:12px; padding:6px var(--rail); }
+h1 { position:static; transform:none; justify-self:center; width:clamp(90px,24vw,190px); height:auto; aspect-ratio:190/56; grid-column:2; grid-row:1; }
+#viewCipher,#mute { position:static; transform:none; top:auto; width:auto; max-width:100%; height:44px; padding:5px 12px; white-space:nowrap; justify-self:center; }
+#viewCipher { grid-column:1; grid-row:1; }
+#mute { grid-column:3; grid-row:1; }
 .jewel.purple,.jewel.yellow { top:calc(var(--header-h) - 16px); }
 .dialogFoot { flex-wrap:wrap; gap:12px; }
 #startOver { margin-left:auto; }
+@media(max-width:900px) {
+  header { grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); padding:6px calc(var(--rail) + 4px) 30px; column-gap:6px; }
+  #viewCipher { justify-self:start; }
+  #mute { justify-self:end; }
+}
 @media(max-width:600px) {
-  :root { --header-h:96px; }
-  header { column-gap:6px; padding-inline:calc(var(--rail) + 4px); }
-  #viewCipher,#mute { height:40px; padding:4px 6px; font-size:12px; }
+  :root { --header-h:100px; }
+  #viewCipher,#mute { padding:4px 6px; font-size:12px; }
 }
 @media(max-height:480px) {
-  :root { --header-h:82px; }
-  header { padding-top:2px; padding-bottom:28px; }
+  :root { --header-h:86px; }
   h1 { width:120px; }
   .jewel.purple,.jewel.yellow { top:calc(var(--header-h) - 14px); }
 }
