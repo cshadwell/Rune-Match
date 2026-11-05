@@ -40,21 +40,18 @@
     .keyRune { display:block; width:54px; height:54px; }
     .emptyKey { grid-column:1/-1; color:var(--muted); }
     .dialogFoot { padding:0 18px 18px; display:flex; gap:10px; flex-wrap:wrap; }
-    #tutorial { width:min(480px,calc(100% - 24px)); padding:24px; }
-    #tutorialStep { margin:0 0 8px; color:var(--muted); font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
-    #tutorialText { font-size:16px; line-height:1.65; color:var(--muted); min-height:104px; }
-    .tutorialArt { display:flex; justify-content:center; align-items:center; gap:16px; height:130px; margin:16px 0; }
-    .tutorialTile { width:100px; height:110px; display:flex; align-items:center; justify-content:center; border:1px solid #ffffff30; border-radius:14px; background:#ffffff08; }
-    .tutorialTile .sigil { width:76px; height:76px; }
-    .tutorialLetter { font-size:48px; color:var(--gold); }
-    .tutorialActions { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
-    .tutorialActions div { display:flex; gap:8px; }
+    #tutorial { width:min(540px,calc(100% - 24px)); padding:clamp(16px,4vw,24px); }
+    .deviceNote { margin:12px 0 16px; padding:10px 12px; border:1px solid #ffffff20; border-radius:8px; color:var(--ink); background:#0003; }
+    .tutorialInstructions { margin:0 0 16px; padding-inline-start:1.4em; line-height:1.5; color:var(--muted); }
+    .tutorialInstructions li + li { margin-top:8px; }
+    .tutorialActions { display:flex; justify-content:flex-end; }
+    .tutorialActions button { min-height:44px; }
     .primary { background:var(--gold); color:var(--bg); border-color:var(--gold); }
     .primary:hover { background:#ffe5a0; }
     @media(max-width:480px) { header { padding:8px 10px; align-items:flex-start; } h1 { padding-top:7px; } .controls { gap:5px; } button,.download { font-size:12px; padding:8px; } main { padding:0 6px 6px; } .grid { gap:6px; } .seal { inset:5px; } .face,.inner { border-radius:9px; } }
     @media(prefers-reduced-motion:reduce) { .inner { transition:none; } }
   </style>
-  <link rel="stylesheet" href="tablet.css?v=gem-notes-5">
+  <link rel="stylesheet" href="tablet.css?v=single-guide-7">
 </head>
 <body>
   <div class="tabletFrame" aria-hidden="true"></div>
@@ -82,13 +79,17 @@
       <button id="startOver" type="button">Start over</button>
     </div>
   </dialog>
-  <dialog id="tutorial" aria-labelledby="tutorialTitle" aria-describedby="tutorialText">
-    <p id="tutorialStep"></p><h2 id="tutorialTitle"></h2>
-    <div id="tutorialArt" class="tutorialArt" aria-hidden="true"></div>
-    <p id="tutorialText"></p>
-    <div class="tutorialActions"><button id="skipTutorial" type="button">Skip tutorial</button><div><button id="tutorialBack" type="button">Back</button><button id="tutorialNext" class="primary" type="button">Next</button></div></div>
+  <dialog id="tutorial" aria-labelledby="tutorialTitle">
+    <h2 id="tutorialTitle" tabindex="-1">How to play</h2>
+    <p class="deviceNote"><strong>Best on a tablet or desktop.</strong> You can play on a phone, but a larger screen makes it easier to see the board and compare runes.</p>
+    <ol class="tutorialInstructions">
+      <li><strong>Find matching runes.</strong> Turn over two tiles. If the runes differ, the tiles turn back over.</li>
+      <li><strong>Build your cipher.</strong> Each matching pair reveals a letter. Select <strong>View cipher</strong> to see the letters you’ve uncovered.</li>
+      <li><strong>Complete the key.</strong> Match all 26 pairs to download the full cipher. Your progress saves in this browser.</li>
+    </ol>
+    <div class="tutorialActions"><button id="startPlaying" class="primary" type="button">Start playing</button></div>
   </dialog>
   <noscript><p>This matching game needs JavaScript enabled to play.</p></noscript>
-  <script src="engine.js"></script><script src="rune-art.js"></script><script src="layout.js?v=gem-notes-5"></script><script src="gem-audio.js?v=gem-notes-5"></script><script src="app.js?v=touch-audio-6"></script>
+  <script src="engine.js"></script><script src="rune-art.js"></script><script src="layout.js?v=gem-notes-5"></script><script src="gem-audio.js?v=gem-notes-5"></script><script src="app.js?v=single-guide-7"></script>
 </body>
 </html>

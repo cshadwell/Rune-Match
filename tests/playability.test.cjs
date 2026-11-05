@@ -40,7 +40,7 @@ test('browser fast clicks cannot overlap turns or produce extra timers',async()=
 test('reload mid-miss preserves moves and board; reload mid-match preserves letter',async()=>{const store=new Map();let b=browser({store});await tick();const deck=b.saved().game.deck;await b.click('A-0');await b.click('B-0');b=browser({store});await tick();assert.equal(b.saved().game.moves,1);assert.deepEqual(b.saved().game.deck,deck);assert.equal(b.find('A-0').classes.has('flipped'),false);await b.click('A-0');await b.click('A-1');b=browser({store});await tick();assert.equal(b.find('A-0').classes.has('matched'),true);assert.equal(b.find('A-0').classes.has('matched'),true);});
 test('completed cipher can close, reopen and survive revisit',async()=>{const store=new Map();const b=browser({store});await tick();for(const l of LETTERS){await b.click(l+'-0');await b.click(l+'-1');b.settle();}assert.equal(b.els.completeOverlay.open,true);await b.control('closeOverlay');assert.equal(b.els.completeOverlay.open,false);await b.control('viewCipher');assert.equal(b.els.fullKey.children.length,26);const r=browser({store});await tick();await r.control('viewCipher');assert.equal(r.els.fullKey.children.length,26);});
 test('corrupt save is backed up and replaced with a valid playable game',async()=>{const store=new Map([[KEY,'broken json']]);const b=browser({store});await tick();assert.equal(store.get(KEY+':recovery'),'broken json');assert.equal(b.saved().game.moves,0);assert.match(b.els.saveStatus.textContent,/could not be read/);await b.click('A-0');await b.click('A-1');assert.equal(b.saved().game.matched.length,1);});
-test('blocked storage allows play and reports persistence limitation',async()=>{const b=browser({blocked:true});await tick();await b.control('skipTutorial');await b.click('A-0');await b.click('A-1');b.settle();assert.equal(b.find('A-0').classes.has('matched'),true);assert.match(b.els.saveStatus.textContent,/cannot be saved/);});
+test('blocked storage allows play and reports persistence limitation',async()=>{const b=browser({blocked:true});await tick();await b.control('startPlaying');await b.click('A-0');await b.click('A-1');b.settle();assert.equal(b.find('A-0').classes.has('matched'),true);assert.match(b.els.saveStatus.textContent,/cannot be saved/);});
 test('mute survives reload without changing progress',async()=>{const b=browser();await tick();await b.control('mute');await b.click('A-0');await b.click('A-1');const r=browser({store:b.store});await tick();assert.equal(r.saved().muted,true);assert.equal(r.saved().game.moves,1);assert.equal(r.find('A-0').classes.has('matched'),true);});
 test('newer tab wins: stale selection never overwrites saved matches',async()=>{const store=new Map(),locks=makeLocks();const a=browser({store,locks}),b=browser({store,locks});await tick();await tick();await a.click('A-0');await a.click('A-1');await b.click('B-0');assert.deepEqual(b.saved().game.matched,['A']);assert.match(b.els.feedback.textContent,/another tab/);await b.click('B-0');await b.click('B-1');assert.deepEqual(b.saved().game.matched,['A','B']);await a.event('storage',{key:KEY});assert.equal(a.saved().game.matched.length,2);});
 test('concurrent first loads and turns are serialized across tabs',async()=>{const store=new Map(),locks=makeLocks();const a=browser({store,locks}),b=browser({store,locks});await tick();await tick();assert.deepEqual(a.els.grid.children.map(e=>e.dataset.id),b.els.grid.children.map(e=>e.dataset.id));await a.click('A-0');await b.click('B-0');a.find('A-1').fire('click');b.find('B-1').fire('click');await tick();await tick();assert.deepEqual(a.saved().game.matched,['A']);assert.equal(a.saved().game.moves,1);});
@@ -62,19 +62,17 @@ test('cards and cipher dialog use approved paths',async()=>{
  await b.control('viewCipher');assert.ok(b.els.fullKey.children[0].innerHTML.includes('<path'));
 });
 
-test('first visit tutorial supports next, back, completion and remembered dismissal',async()=>{
- const b=browser({tutorialSeen:false});await tick();assert.equal(b.els.tutorial.open,true);assert.equal(b.els.tutorialTitle.textContent,'Find matching runes');
+test('first visit shows one guide and remembers dismissal',async()=>{
+ const b=browser({tutorialSeen:false});await tick();
+ assert.equal(b.els.tutorial.open,true);assert.equal(b.doc.activeElement,b.els.tutorialTitle);
  await b.click('A-0');assert.equal(b.find('A-0').classes.has('flipped'),false);
- await b.control('tutorialNext');assert.equal(b.els.tutorialTitle.textContent,'Build your cipher');
- await b.control('tutorialBack');assert.equal(b.els.tutorialTitle.textContent,'Find matching runes');
- await b.control('tutorialNext');await b.control('tutorialNext');assert.equal(b.els.tutorialNext.textContent,'Start playing');
- await b.control('tutorialNext');assert.equal(b.els.tutorial.open,false);assert.equal(b.store.get('rune-match:tutorial:v1'),'seen');
+ await b.control('startPlaying');assert.equal(b.els.tutorial.open,false);assert.equal(b.store.get('rune-match:tutorial:v1'),'seen');
  const r=browser({store:b.store});await tick();assert.equal(r.els.tutorial.open,false);
 });
-test('tutorial can be skipped immediately, replayed, and dismissed without losing progress',async()=>{
- const b=browser({tutorialSeen:false});await tick();await b.control('skipTutorial');await b.click('A-0');await b.click('A-1');b.settle();
+test('guide can be reopened and dismissed without losing progress',async()=>{
+ const b=browser({tutorialSeen:false});await tick();await b.control('startPlaying');await b.click('A-0');await b.click('A-1');b.settle();
  await b.control('viewCipher');await b.control('howToPlay');assert.equal(b.els.completeOverlay.open,false);assert.equal(b.els.tutorial.open,true);
- await b.control('skipTutorial');assert.deepEqual(b.saved().game.matched,['A']);
+ await b.control('startPlaying');assert.deepEqual(b.saved().game.matched,['A']);
 });
 test('download unlocks only at completion and stays available on return',async()=>{
  const b=browser();await tick();assert.equal(b.els.downloadCipher.hidden,true);assert.equal(b.els.downloadCipherDialog.hidden,true);

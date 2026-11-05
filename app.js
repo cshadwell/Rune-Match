@@ -114,7 +114,6 @@
   const SAVE_KEY='rune-match:save:v1';
   const LOCK_NAME='rune-match:save';
   const TUTORIAL_KEY='rune-match:tutorial:v1';
-  let tutorialStep=0;
   let game=new Game(), muted=false, lastRaw=null, processing=false, timer=null, epoch=0;
   let storageAvailable=true, returnFocus=null;
   const cards=new Map();
@@ -267,32 +266,16 @@
   $('closeOverlay').addEventListener('click',()=>$('completeOverlay').close());
   $('completeOverlay').addEventListener('click',e=>{if(e.target===$('completeOverlay')) $('completeOverlay').close();});
   $('completeOverlay').addEventListener('close',()=>{if(returnFocus?.isConnected)returnFocus.focus();});
-  const tutorialPages=[
-    {title:'Find matching runes',text:'Turn over two cards. Look for identical rune shapes. If they differ, they turn back over—remember where you saw them.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('A')}</span><span class="tutorialTile">${RuneArtwork.render('A')}</span>`},
-    {title:'Build your cipher',text:'Each matching pair reveals a letter. Open View cipher whenever you want to see the letters you have deciphered.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('A')}</span><span class="tutorialLetter">= ?</span>`},
-    {title:'Keep what you discover',text:'Your progress saves in this browser. Return here to keep playing or consult your cipher. Match all 26 pairs to download the complete key for later in your adventure.',art:()=>`<span class="tutorialTile">${RuneArtwork.render('S')}</span><span class="tutorialTile">${RuneArtwork.render('W')}</span>`}
-  ];
-  function renderTutorial(){
-    const page=tutorialPages[tutorialStep];
-    $('tutorialStep').textContent=`${tutorialStep+1} / ${tutorialPages.length}`;
-    $('tutorialTitle').textContent=page.title;$('tutorialText').textContent=page.text;$('tutorialArt').innerHTML=page.art();
-    $('tutorialBack').hidden=tutorialStep===0;
-    $('tutorialNext').textContent=tutorialStep===tutorialPages.length-1?'Start playing':'Next';
-  }
   function openTutorial(){
     if($('completeOverlay').open) $('completeOverlay').close();
-    tutorialStep=0;renderTutorial();$('tutorial').showModal();$('tutorialNext').focus();
+    $('tutorial').showModal();
+    $('tutorialTitle').focus();
   }
   function finishTutorial(){
     try {localStorage.setItem(TUTORIAL_KEY,'seen');} catch {}
     $('tutorial').close();
   }
-  $('tutorialNext').addEventListener('click',()=>{
-    if(tutorialStep===tutorialPages.length-1)finishTutorial();
-    else {tutorialStep++;renderTutorial();$('tutorialNext').focus();}
-  });
-  $('tutorialBack').addEventListener('click',()=>{tutorialStep=Math.max(0,tutorialStep-1);renderTutorial();$('tutorialNext').focus();});
-  $('skipTutorial').addEventListener('click',finishTutorial);
+  $('startPlaying').addEventListener('click',finishTutorial);
   $('tutorial').addEventListener('cancel',e=>{e.preventDefault();finishTutorial();});
   $('tutorial').addEventListener('close',()=>{$('viewCipher').focus();});
   $('howToPlay').addEventListener('click',openTutorial);

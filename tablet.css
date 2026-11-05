@@ -27,7 +27,7 @@ main { position:relative; z-index:1; padding:8px calc(var(--rail) + 8px) 8px; }
 .grid { align-items:center; justify-items:center; }
 button.card { width:var(--tile-width,100%); height:var(--tile-height,100%); min-height:44px; padding:0; border:0; border-radius:6%; background:none; box-shadow:none; }
 .inner { border-radius:6%; }
-.face,.tutorialTile,.keyTile { border:0; border-radius:6%; background-color:transparent; background-image:url('assets/custom-tile.png'); background-position:center; background-repeat:no-repeat; background-size:100% 100%; box-shadow:none; }
+.face,.keyTile { border:0; border-radius:6%; background-color:transparent; background-image:url('assets/custom-tile.png'); background-position:center; background-repeat:no-repeat; background-size:100% 100%; box-shadow:none; }
 .card:nth-child(n) .face { background-image:url('assets/custom-tile.png'); background-position:center; background-size:100% 100%; }
 .seal { display:none; }
 .cardSeal { display:block; width:58%; height:46%; background:url('assets/tablet-seal.svg') center/contain no-repeat; filter:drop-shadow(1px 1px 0 #000) drop-shadow(-.5px -.5px 0 #c9a26055); }
@@ -43,7 +43,6 @@ dialog { border:4px ridge #a4824d; border-radius:8px; background:#201e18; box-sh
 h2 { font-family:Palatino,'Palatino Linotype',Georgia,serif; font-weight:400; }
 .keyTile { padding:20px; color:var(--ink); }
 .keyTile .L { color:var(--gold); text-shadow:0 1px 2px #000; }
-.tutorialTile { color:var(--ink); }
 .primary { color:#16130c; background:linear-gradient(#cfaf75,#916e3c); border-color:#d8b97f; }
 .primary:hover { color:#16130c; background:linear-gradient(#e9ca94,#ac854c); }
 @media(max-width:600px) {
@@ -57,10 +56,9 @@ h2 { font-family:Palatino,'Palatino Linotype',Georgia,serif; font-weight:400; }
 }
 @media(max-width:360px) { h1 { width:98px; height:29.04px; } #viewCipher,#mute { width:82px; font-size:12px; } }
 @media(prefers-reduced-motion:reduce) { .card.matched .back::after { animation:none; } }
-/* Preserve the supplied tile proportions in the reference and tutorial too. */
+/* Preserve the supplied tile proportions in the cipher. */
 .keyFull { grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); }
 .keyTile { aspect-ratio:3/4; min-height:0; padding:14px 8px; }
-.tutorialTile { width:90px; height:120px; flex-shrink:0; }
 .jewel.red { width:calc(var(--gem-size)*.84); height:calc(var(--gem-size)*.924); bottom:calc((var(--footer-h) - var(--gem-size)*.924)/2); }
 .jewel.blue { width:calc(var(--gem-size)*1.2); height:calc(var(--gem-size)*1.32); bottom:calc((var(--footer-h) - var(--gem-size)*1.32)/2); }
 
