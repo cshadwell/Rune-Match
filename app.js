@@ -135,13 +135,8 @@
     }catch{announce('Gem audio is unavailable in this browser.');}
   }
   for(const color of ['blue','green','purple','yellow','red']){
-    const button=$('gem-'+color);
-    button.addEventListener('pointerdown',event=>{
-      if(event.button!==0)return;
-      playGem(color);
-    });
-    // Keyboard and assistive technology clicks have no pointer click count.
-    button.addEventListener('click',event=>{if(event.detail===0)playGem(color);});
+    // A completed tap is an audio activation gesture on touch browsers.
+    $('gem-'+color).addEventListener('click',()=>playGem(color));
   }
 
   const announce=message=>{$('feedback').textContent=message;};
@@ -252,12 +247,14 @@
   }
   function flip(id) {
     if($('tutorial').open || $('completeOverlay').open) return;
+    // Resume within the click, before waiting for the save lock.
+    sound('resume');
     // The busy flag is set synchronously, before waiting for a cross-tab lock.
     transact(()=>{
       const result=game.select(id);
       if(result.type==='ignored') return;
       if(result.type!=='first') persist(); // Commit earned matches before animation.
-      render();sound('resume');sound('swish');
+      render();sound('swish');
       if(result.type==='first') {announce(`Rune ${GLYPH[id[0]]} exposed. Choose another card.`);return;}
       const thisEpoch=epoch;
       if(result.type==='match') {announce(`Match found. ${result.letter} is ${GLYPH[result.letter]}.`);sound('ding');}
@@ -265,7 +262,7 @@
       timer=setTimeout(()=>{if(epoch===thisEpoch) settle(result);},result.type==='match'?220:1000);
     });
   }
-  $('mute').addEventListener('click',()=>transact(()=>{muted=!muted;persist();render();if(!muted)sound('resume');}));
+  $('mute').addEventListener('click',()=>transact(()=>{muted=!muted;persist();render();}));
   $('viewCipher').addEventListener('click',showCipher);
   $('closeOverlay').addEventListener('click',()=>$('completeOverlay').close());
   $('completeOverlay').addEventListener('click',e=>{if(e.target===$('completeOverlay')) $('completeOverlay').close();});

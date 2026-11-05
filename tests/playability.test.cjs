@@ -10,7 +10,7 @@ class Element {
   constructor(doc){this.doc=doc;this.attrs={};this.dataset={};this.children=[];this.events={};this.classes=new Set();this.classList={toggle:(k,on)=>on?this.classes.add(k):this.classes.delete(k)};this.textContent='';this.open=false;this.isConnected=true;}
   setAttribute(k,v){this.attrs[k]=v;}
   addEventListener(k,fn){(this.events[k]??=[]).push(fn);}
-  fire(k){for(const fn of this.events[k]??[])fn({target:this});}
+  fire(k,fields={}){for(const fn of this.events[k]??[])fn({target:this,...fields});}
   append(e){this.children.push(e);}
   replaceChildren(){this.children=[];}
   focus(){this.doc.activeElement=this;}
@@ -18,14 +18,14 @@ class Element {
   close(){this.open=false;this.fire('close');}
 }
 function makeLocks(){let tail=Promise.resolve();return {request(_name,fn){const job=tail.then(fn);tail=job.catch(()=>{});return job;}};}
-function browser({store=new Map(),audio='missing',blocked=false,locks=null,confirm=true,tutorialSeen=true}={}) {
+function browser({store=new Map(),audio='missing',blocked=false,locks=null,confirm=true,tutorialSeen=true,gemAudio,onResume}={}) {
   if(tutorialSeen && !store.has('rune-match:tutorial:v1'))store.set('rune-match:tutorial:v1','seen');
   const els={},events={},timers=new Map();let nextTimer=0;
   const doc={hidden:false,createElement:()=>new Element(doc),getElementById:id=>els[id]??=(new Element(doc)),addEventListener(k,fn){(events['doc:'+k]??=[]).push(fn);},fonts:{load:()=>Promise.resolve([{}])}};
   const localStorage={getItem(k){if(blocked)throw Error('blocked');return store.get(k)??null;},setItem(k,v){if(blocked)throw Error('blocked');store.set(k,v);}};
   const win={confirm:()=>confirm,addEventListener(k,fn){(events[k]??=[]).push(fn);}};
-  if(audio!=='missing')win.AudioContext=function(){this.resume=()=>audio==='suspended'?new Promise(()=>{}):Promise.reject(Error('audio denied'));this.createOscillator=()=>{throw Error('audio device failed');};};
-  const ctx={RuneLayout:require("../layout.js"),RuneArtwork:require("../rune-art.js"),RuneMatch:{Game,LETTERS,IDS,fresh,validate,GLYPH},document:doc,localStorage,navigator:locks?{locks}:{},window:win,setTimeout(fn){const id=++nextTimer;timers.set(id,fn);return id;},clearTimeout:id=>timers.delete(id),console};
+  if(audio!=='missing')win.AudioContext=function(){this.resume=()=>{onResume?.();return audio==='suspended'?new Promise(()=>{}):Promise.reject(Error('audio denied'));};this.createOscillator=()=>{throw Error('audio device failed');};};
+  const ctx={GemAudio:gemAudio,RuneLayout:require("../layout.js"),RuneArtwork:require("../rune-art.js"),RuneMatch:{Game,LETTERS,IDS,fresh,validate,GLYPH},document:doc,localStorage,navigator:locks?{locks}:{},window:win,setTimeout(fn){const id=++nextTimer;timers.set(id,fn);return id;},clearTimeout:id=>timers.delete(id),console};
   vm.createContext(ctx);vm.runInContext(script,ctx);
   const find=id=>els.grid.children.find(e=>e.dataset.id===id);
   return {els,store,doc,find,events,timers,async click(id){find(id).fire('click');await tick();},async control(id){els[id].fire('click');await tick();},settle(){for(const [id,fn] of timers){timers.delete(id);fn();}},saved:()=>JSON.parse(store.get(KEY)),async event(k,e={}){for(const fn of events[k]??[])fn(e);await tick();}};
@@ -129,4 +129,27 @@ test('start over propagates to another open tab',async()=>{
  await a.click('A-0');await a.click('A-1');a.settle();await b.event('storage',{key:KEY});
  await a.control('viewCipher');await a.control('startOver');await b.event('storage',{key:KEY});
  assert.deepEqual(b.saved().game.matched,[]);assert.equal(b.find('A-0').classes.has('matched'),false);
+});
+
+test('a touch click plays one gem note and respects the sound toggle',async()=>{
+  const notes=[];
+  const gemAudio={create:()=>({preload(){},setMuted(){},play(color){notes.push(color);}})};
+  const b=browser({audio:'suspended',gemAudio});await tick();
+  b.els['gem-blue'].fire('pointerdown',{pointerType:'touch',button:0});
+  assert.deepEqual(notes,[]);
+  b.els['gem-blue'].fire('click',{pointerType:'touch',detail:1});
+  assert.deepEqual(notes,['blue']);
+  await b.control('mute');
+  b.els['gem-blue'].fire('click',{pointerType:'touch',detail:1});
+  assert.deepEqual(notes,['blue']);
+});
+
+test('a tile click resumes audio before the asynchronous save lock',async()=>{
+  let resumes=0;
+  const b=browser({audio:'suspended',locks:makeLocks(),onResume:()=>resumes++});
+  await tick();
+  b.find('A-0').fire('click');
+  assert.equal(resumes,1);
+  await tick();
+  assert.match(b.find('A-0').attrs['aria-label'],/exposed rune/);
 });
