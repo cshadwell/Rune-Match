@@ -29,3 +29,16 @@ test('failed audio reports failure and can be retried without throwing',async()=
  const b=setup({fail:true});assert.equal(await b.player.play('yellow'),false);assert.equal(await b.player.play('yellow'),false);
  assert.deepEqual(b.errors,['yellow','yellow']);assert.equal(b.fetched.length,2);
 });
+
+test('completion callback waits for the individual recording to end',async()=>{
+ const b=setup();let completed=0;
+ await b.player.play('purple',{onEnded:()=>completed++});
+ assert.equal(completed,0);assert.equal(b.sources[0].started,true);
+ b.sources[0].onended();assert.equal(completed,1);
+});
+test('muted and failed playback both release a waiting transition',async()=>{
+ const muted=setup();muted.player.setMuted(true);let completed=0;
+ await muted.player.play('purple',{onEnded:()=>completed++});
+ const failed=setup({fail:true});await failed.player.play('purple',{onEnded:()=>completed++});
+ assert.equal(completed,2);
+});

@@ -20,8 +20,9 @@
       if(muted)for(const voice of voices){try{voice.stop();}catch{}}
       if(muted)voices.clear();
     }
-    async function play(color){
-      if(muted||!COLORS.includes(color))return false;
+    async function play(color,{onEnded=()=>{}}={}){
+      let started=false;
+      if(muted||!COLORS.includes(color)){onEnded();return false;}
       const pressGeneration=generation;
       try {
         // Resume directly in the gesture, before any network/decode await.
@@ -30,9 +31,10 @@
         if(muted||pressGeneration!==generation)return false;
         const source=context.createBufferSource();source.buffer=buffer;
         source.connect(context.destination);voices.add(source);
-        source.onended=()=>{voices.delete(source);source.disconnect();};
-        source.start();return true;
+        source.onended=()=>{voices.delete(source);source.disconnect();onEnded();};
+        source.start();started=true;return true;
       }catch{onError(color);return false;}
+      finally{if(!started)onEnded();}
     }
     return {preload,play,setMuted};
   }

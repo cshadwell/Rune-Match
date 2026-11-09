@@ -161,7 +161,8 @@ async function enterJewels(browser,colors){
 test('the exact jewel sequence opens the dungeon after the seventh press, including while muted',async()=>{
   const b=browser();await tick();await b.control('mute');
   await enterJewels(b,jewelPuzzle.SEQUENCE.slice(0,-1));assert.deepEqual(b.destinations,[]);
-  await b.control('gem-purple');assert.deepEqual(b.destinations,[jewelPuzzle.DESTINATION]);
+  await b.control('gem-purple');assert.deepEqual(b.destinations,[]);
+  b.settle();await tick();assert.deepEqual(b.destinations,[jewelPuzzle.DESTINATION]);
 });
 test('wrong jewel entries and partial sequences do not navigate; retries can start at any press',async()=>{
   const b=browser();await tick();
@@ -169,18 +170,20 @@ test('wrong jewel entries and partial sequences do not navigate; retries can sta
   assert.deepEqual(b.destinations,[]);
   await enterJewels(b,['white','yellow','white','white']);
   await enterJewels(b,jewelPuzzle.SEQUENCE);
+  b.settle();await tick();
   assert.deepEqual(b.destinations,[jewelPuzzle.DESTINATION]);
 });
 test('returning from the dungeon retains progress, mute, deck and cipher access and allows another attempt',async()=>{
   const b=browser();await tick();await b.click('A-0');await b.click('A-1');b.settle();await b.control('mute');
   const saved=b.store.get(KEY);
   await enterJewels(b,jewelPuzzle.SEQUENCE);
+  b.settle();await tick();
   assert.equal(b.store.get(KEY),saved);
   await b.event('pageshow',{persisted:true});
   await b.control('viewCipher');assert.equal(b.els.fullKey.children.length,1);
   await b.control('closeOverlay');
   await b.control('gem-purple');assert.equal(b.destinations.length,1);
-  await enterJewels(b,jewelPuzzle.SEQUENCE);assert.equal(b.destinations.length,2);
+  await enterJewels(b,jewelPuzzle.SEQUENCE);b.settle();await tick();assert.equal(b.destinations.length,2);
   const reloaded=browser({store:b.store});await tick();
   assert.equal(reloaded.store.get(KEY),saved);
   await reloaded.control('viewCipher');assert.equal(reloaded.els.fullKey.children.length,1);
@@ -192,4 +195,29 @@ test('incorrect and successful jewel entries retain the existing sound at every 
   const b=browser({audio:'suspended',gemAudio});await tick();
   await enterJewels(b,jewelPuzzle.SEQUENCE);
   assert.deepEqual(notes,['yellow','green','red','blue','blue','green','purple']);
+});
+
+test('the dungeon transition waits for the final recording after the fade and ignores extra presses',async()=>{
+  let finalEnded;
+  const notes=[];
+  const gemAudio={create:()=>({preload(){},setMuted(){},play(color,{onEnded}){notes.push(color);finalEnded=onEnded;}})};
+  const b=browser({audio:'suspended',gemAudio});await tick();
+  await enterJewels(b,jewelPuzzle.SEQUENCE);
+  assert.equal(b.els.dungeonTransition.classes.has('active'),true);
+  assert.deepEqual(b.destinations,[]);
+  // The fade timer completes while the recording is still playing.
+  const [fadeId,fade]=b.timers.entries().next().value;b.timers.delete(fadeId);fade();await tick();
+  assert.deepEqual(b.destinations,[]);
+  await b.control('gem-blue');assert.equal(notes.length,7);
+  finalEnded();await tick();
+  assert.deepEqual(b.destinations,[jewelPuzzle.DESTINATION]);
+  await b.event('pageshow',{persisted:true});
+  assert.equal(b.els.dungeonTransition.classes.has('active'),false);
+});
+test('returning before a pending transition completes prevents a stale redirect',async()=>{
+  let ended;
+  const gemAudio={create:()=>({preload(){},setMuted(){},play(color,{onEnded}){ended=onEnded;}})};
+  const b=browser({audio:'suspended',gemAudio});await tick();
+  await enterJewels(b,jewelPuzzle.SEQUENCE);await b.event('pageshow',{persisted:true});
+  ended();b.settle();await tick();assert.deepEqual(b.destinations,[]);
 });

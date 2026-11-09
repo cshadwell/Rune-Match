@@ -119,6 +119,7 @@
   const cards=new Map();
   const jewelSequence=JewelPuzzle.createMatcher();
   let leavingForDungeon=false;
+  let dungeonTransitionVersion=0;
   let gemPlayer=null,gemPlayerMuted=false;
   function prepareGemAudio(){
       if(!gemPlayer){
@@ -128,23 +129,40 @@
         gemPlayer.preload();
       }
   }
-  function playGem(color){
-    if(muted)return;
+  function playGem(color,onEnded=()=>{}){
+    if(muted){onEnded();return;}
     try {
       prepareGemAudio();
-      gemPlayer.play(color);
-    }catch{announce('Gem audio is unavailable in this browser.');}
+      gemPlayer.play(color,{onEnded});
+    }catch{onEnded();announce('Gem audio is unavailable in this browser.');}
   }
   for(const color of ['blue','green','purple','yellow','red']){
     // A completed tap is an audio activation gesture on touch browsers.
     $('gem-'+color).addEventListener('click',()=>{
       if(leavingForDungeon)return;
-      playGem(color);
       if(jewelSequence.press(JewelPuzzle.BUTTON_COLORS['gem-'+color])){
-        leavingForDungeon=true;
-        window.location.assign(JewelPuzzle.DESTINATION);
+        leaveForDungeon(color);
+      }else{
+        playGem(color);
       }
     });
+  }
+
+  async function leaveForDungeon(color){
+    leavingForDungeon=true;
+    cancelTurn();
+    render();
+    const version=++dungeonTransitionVersion;
+    $('dungeonTransition').classList.toggle('active',true);
+    announce('Entering the dungeon.');
+    const fadeFinished=new Promise(resolve=>setTimeout(resolve,900));
+    const noteFinished=new Promise(resolve=>{
+      // A blocked audio device or stalled download must not strand the player.
+      const fallback=setTimeout(resolve,30000);
+      playGem(color,()=>{clearTimeout(fallback);resolve();});
+    });
+    await Promise.all([fadeFinished,noteFinished]);
+    if(version===dungeonTransitionVersion)window.location.assign(JewelPuzzle.DESTINATION);
   }
 
   const announce=message=>{$('feedback').textContent=message;};
@@ -324,7 +342,9 @@
   window.addEventListener('storage',e=>{if(e.key===SAVE_KEY || e.key===null) remoteChanged();});
   window.addEventListener('pageshow',()=>{
     jewelSequence.reset();
+    dungeonTransitionVersion++;
     leavingForDungeon=false;
+    $('dungeonTransition').classList.toggle('active',false);
     remoteChanged();
   });
   document.addEventListener('visibilitychange',()=>{

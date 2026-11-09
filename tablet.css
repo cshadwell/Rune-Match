@@ -135,3 +135,8 @@ h1 { position:static; transform:none; justify-self:center; width:clamp(90px,24vw
 .gemButton .jewel.blue { width:calc(var(--gem-size)*.9); height:calc(var(--gem-size)*1.32); }
 .gemButton .jewel.red,.gemButton .jewel.green { width:calc(var(--gem-size)*.85); height:calc(var(--gem-size)*1.1); }
 .gemButton .jewel::after { display:none; }
+
+/* Fade the scene while the final jewel recording resolves. */
+#dungeonTransition { position:fixed; inset:0; z-index:2147483647; background:#000; opacity:0; pointer-events:none; transition:opacity 900ms ease-in-out; }
+#dungeonTransition.active { opacity:1; pointer-events:auto; }
+@media(prefers-reduced-motion:reduce) { #dungeonTransition { transition:none; } }
