@@ -23,12 +23,13 @@ function browser({store=new Map(),audio='missing',blocked=false,locks=null,confi
   const els={},events={},timers=new Map();let nextTimer=0;
   const doc={hidden:false,createElement:()=>new Element(doc),getElementById:id=>els[id]??=(new Element(doc)),addEventListener(k,fn){(events['doc:'+k]??=[]).push(fn);},fonts:{load:()=>Promise.resolve([{}])}};
   const localStorage={getItem(k){if(blocked)throw Error('blocked');return store.get(k)??null;},setItem(k,v){if(blocked)throw Error('blocked');store.set(k,v);}};
-  const win={confirm:()=>confirm,addEventListener(k,fn){(events[k]??=[]).push(fn);}};
+  const destinations=[];
+  const win={location:{assign:url=>destinations.push(url)},confirm:()=>confirm,addEventListener(k,fn){(events[k]??=[]).push(fn);}};
   if(audio!=='missing')win.AudioContext=function(){this.resume=()=>{onResume?.();return audio==='suspended'?new Promise(()=>{}):Promise.reject(Error('audio denied'));};this.createOscillator=()=>{throw Error('audio device failed');};};
-  const ctx={GemAudio:gemAudio,RuneLayout:require("../layout.js"),RuneArtwork:require("../rune-art.js"),RuneMatch:{Game,LETTERS,IDS,fresh,validate,GLYPH},document:doc,localStorage,navigator:locks?{locks}:{},window:win,setTimeout(fn){const id=++nextTimer;timers.set(id,fn);return id;},clearTimeout:id=>timers.delete(id),console};
+  const ctx={JewelPuzzle:require("../jewel-puzzle.js"),GemAudio:gemAudio,RuneLayout:require("../layout.js"),RuneArtwork:require("../rune-art.js"),RuneMatch:{Game,LETTERS,IDS,fresh,validate,GLYPH},document:doc,localStorage,navigator:locks?{locks}:{},window:win,setTimeout(fn){const id=++nextTimer;timers.set(id,fn);return id;},clearTimeout:id=>timers.delete(id),console};
   vm.createContext(ctx);vm.runInContext(script,ctx);
   const find=id=>els.grid.children.find(e=>e.dataset.id===id);
-  return {els,store,doc,find,events,timers,async click(id){find(id).fire('click');await tick();},async control(id){els[id].fire('click');await tick();},settle(){for(const [id,fn] of timers){timers.delete(id);fn();}},saved:()=>JSON.parse(store.get(KEY)),async event(k,e={}){for(const fn of events[k]??[])fn(e);await tick();}};
+  return {els,store,doc,find,events,timers,destinations,async click(id){find(id).fire('click');await tick();},async control(id){els[id].fire('click');await tick();},settle(){for(const [id,fn] of timers){timers.delete(id);fn();}},saved:()=>JSON.parse(store.get(KEY)),async event(k,e={}){for(const fn of events[k]??[])fn(e);await tick();}};
 }
 test('fresh deck contains precisely two of every rune; saved decks retain order',()=>{const s=fresh();assert.equal(new Set(s.deck).size,52);for(const l of LETTERS)assert.equal(s.deck.filter(id=>id[0]===l).length,2);assert.deepEqual(validate(s),s);});
 test('invalid/duplicate/incompatible saved data is rejected',()=>{for(const mutation of [s=>s.version=2,s=>s.moves=-1,s=>s.deck[0]=s.deck[1],s=>s.matched=['!'],s=>{s.matched=['A'];s.moves=0;},s=>s.matched=['A','A']]){const s=fresh();mutation(s);assert.throws(()=>validate(s));}});
@@ -150,4 +151,45 @@ test('a tile click resumes audio before the asynchronous save lock',async()=>{
   assert.equal(resumes,1);
   await tick();
   assert.match(b.find('A-0').attrs['aria-label'],/exposed rune/);
+});
+
+const jewelPuzzle=require('../jewel-puzzle.js');
+const physicalGemIds={red:'gem-purple',white:'gem-yellow',green:'gem-red',blue:'gem-blue',yellow:'gem-green'};
+async function enterJewels(browser,colors){
+  for(const color of colors)await browser.control(physicalGemIds[color]);
+}
+test('the exact jewel sequence opens the dungeon after the seventh press, including while muted',async()=>{
+  const b=browser();await tick();await b.control('mute');
+  await enterJewels(b,jewelPuzzle.SEQUENCE.slice(0,-1));assert.deepEqual(b.destinations,[]);
+  await b.control('gem-purple');assert.deepEqual(b.destinations,[jewelPuzzle.DESTINATION]);
+});
+test('wrong jewel entries and partial sequences do not navigate; retries can start at any press',async()=>{
+  const b=browser();await tick();
+  await enterJewels(b,['white','yellow','green','blue','yellow','blue','red']);
+  assert.deepEqual(b.destinations,[]);
+  await enterJewels(b,['white','yellow','white','white']);
+  await enterJewels(b,jewelPuzzle.SEQUENCE);
+  assert.deepEqual(b.destinations,[jewelPuzzle.DESTINATION]);
+});
+test('returning from the dungeon retains progress, mute, deck and cipher access and allows another attempt',async()=>{
+  const b=browser();await tick();await b.click('A-0');await b.click('A-1');b.settle();await b.control('mute');
+  const saved=b.store.get(KEY);
+  await enterJewels(b,jewelPuzzle.SEQUENCE);
+  assert.equal(b.store.get(KEY),saved);
+  await b.event('pageshow',{persisted:true});
+  await b.control('viewCipher');assert.equal(b.els.fullKey.children.length,1);
+  await b.control('closeOverlay');
+  await b.control('gem-purple');assert.equal(b.destinations.length,1);
+  await enterJewels(b,jewelPuzzle.SEQUENCE);assert.equal(b.destinations.length,2);
+  const reloaded=browser({store:b.store});await tick();
+  assert.equal(reloaded.store.get(KEY),saved);
+  await reloaded.control('viewCipher');assert.equal(reloaded.els.fullKey.children.length,1);
+  await enterJewels(reloaded,['red']);assert.deepEqual(reloaded.destinations,[]);
+});
+test('incorrect and successful jewel entries retain the existing sound at every position',async()=>{
+  const notes=[];
+  const gemAudio={create:()=>({preload(){},setMuted(){},play(color){notes.push(color);}})};
+  const b=browser({audio:'suspended',gemAudio});await tick();
+  await enterJewels(b,jewelPuzzle.SEQUENCE);
+  assert.deepEqual(notes,['yellow','green','red','blue','blue','green','purple']);
 });

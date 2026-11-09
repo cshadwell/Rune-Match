@@ -117,6 +117,8 @@
   let game=new Game(), muted=false, lastRaw=null, processing=false, timer=null, epoch=0;
   let storageAvailable=true, returnFocus=null;
   const cards=new Map();
+  const jewelSequence=JewelPuzzle.createMatcher();
+  let leavingForDungeon=false;
   let gemPlayer=null,gemPlayerMuted=false;
   function prepareGemAudio(){
       if(!gemPlayer){
@@ -135,7 +137,14 @@
   }
   for(const color of ['blue','green','purple','yellow','red']){
     // A completed tap is an audio activation gesture on touch browsers.
-    $('gem-'+color).addEventListener('click',()=>playGem(color));
+    $('gem-'+color).addEventListener('click',()=>{
+      if(leavingForDungeon)return;
+      playGem(color);
+      if(jewelSequence.press(JewelPuzzle.BUTTON_COLORS['gem-'+color])){
+        leavingForDungeon=true;
+        window.location.assign(JewelPuzzle.DESTINATION);
+      }
+    });
   }
 
   const announce=message=>{$('feedback').textContent=message;};
@@ -313,7 +322,11 @@
   window.addEventListener('orientationchange',sizeBoard);
   if(typeof ResizeObserver!=='undefined')new ResizeObserver(sizeBoard).observe($('gameHeader'));
   window.addEventListener('storage',e=>{if(e.key===SAVE_KEY || e.key===null) remoteChanged();});
-  window.addEventListener('pageshow',()=>remoteChanged());
+  window.addEventListener('pageshow',()=>{
+    jewelSequence.reset();
+    leavingForDungeon=false;
+    remoteChanged();
+  });
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden) remoteChanged();
     // A hidden page may have its timers suspended. Resolve the visual turn now;
