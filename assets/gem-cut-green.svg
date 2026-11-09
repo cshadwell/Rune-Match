@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">
+ <defs>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c6a575"/><stop offset=".4" stop-color="#665033"/><stop offset="1" stop-color="#a78650"/></linearGradient>
+  <linearGradient id="stone" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#a4ecad"/><stop offset=".4" stop-color="#119350"/><stop offset="1" stop-color="#043a25"/></linearGradient>
+  <clipPath id="cut"><path d="M29 10H71L86 25V95L71 110H29L14 95V25Z"/></clipPath>
+ </defs>
+ <g fill="#090906" stroke="#090906" stroke-width="11"><path d="M29 10H71L86 25V95L71 110H29L14 95V25Z"/></g>
+ <g fill="url(#gold)" stroke="url(#gold)" stroke-width="5"><path d="M29 10H71L86 25V95L71 110H29L14 95V25Z"/></g>
+ <g fill="url(#stone)" stroke="#043a25" stroke-width="1.5"><path d="M29 10H71L86 25V95L71 110H29L14 95V25Z"/></g>
+ <g clip-path="url(#cut)">
+  <polygon points="50.00,10.00 68.00,16.70 60.80,34.02 50.00,30.00" fill="#a4ecad" opacity=".72"/><polygon points="68.00,16.70 81.18,35.00 68.71,45.00 60.80,34.02" fill="#119350" opacity=".72"/><polygon points="81.18,35.00 86.00,60.00 71.60,60.00 68.71,45.00" fill="#043a25" opacity=".72"/><polygon points="86.00,60.00 81.18,85.00 68.71,75.00 71.60,60.00" fill="#119350" opacity=".72"/><polygon points="81.18,85.00 68.00,103.30 60.80,85.98 68.71,75.00" fill="#a4ecad" opacity=".72"/><polygon points="68.00,103.30 50.00,110.00 50.00,90.00 60.80,85.98" fill="#043a25" opacity=".72"/><polygon points="50.00,110.00 32.00,103.30 39.20,85.98 50.00,90.00" fill="#119350" opacity=".72"/><polygon points="32.00,103.30 18.82,85.00 31.29,75.00 39.20,85.98" fill="#043a25" opacity=".72"/><polygon points="18.82,85.00 14.00,60.00 28.40,60.00 31.29,75.00" fill="#119350" opacity=".72"/><polygon points="14.00,60.00 18.82,35.00 31.29,45.00 28.40,60.00" fill="#a4ecad" opacity=".72"/><polygon points="18.82,35.00 32.00,16.70 39.20,34.02 31.29,45.00" fill="#119350" opacity=".72"/><polygon points="32.00,16.70 50.00,10.00 50.00,30.00 39.20,34.02" fill="#a4ecad" opacity=".72"/><polygon points="50.00,30.00 68.71,45.00 50.00,60.00" fill="#a4ecad" opacity=".27"/><polygon points="68.71,45.00 68.71,75.00 50.00,60.00" fill="#043a25" opacity=".27"/><polygon points="68.71,75.00 50.00,90.00 50.00,60.00" fill="#119350" opacity=".27"/><polygon points="50.00,90.00 31.29,75.00 50.00,60.00" fill="#a4ecad" opacity=".27"/><polygon points="31.29,75.00 31.29,45.00 50.00,60.00" fill="#043a25" opacity=".27"/><polygon points="31.29,45.00 50.00,30.00 50.00,60.00" fill="#119350" opacity=".27"/>
+  <path d="M25 30 42 24 37 40Z" fill="#fff" opacity=".7"/>
+  <path d="M28 33 35 29" fill="none" stroke="#fff" stroke-width="1.3" opacity=".8"/>
+ </g>
+ <g fill="none" stroke="#a4ecad" stroke-width="1" opacity=".45"><path d="M29 10H71L86 25V95L71 110H29L14 95V25Z"/></g>
+</svg>

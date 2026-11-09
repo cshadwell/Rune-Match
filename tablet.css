@@ -17,12 +17,12 @@ button:hover,.download:hover { color:#ffe9bb; background:linear-gradient(#403727
 .borderJewels { pointer-events:none; }
 .jewel { position:fixed; z-index:6; width:var(--gem-size); height:calc(var(--gem-size)*1.1); background-position:center; background-size:contain; background-repeat:no-repeat; pointer-events:none; filter:drop-shadow(0 2px 2px #000c); }
 .jewel.purple,.jewel.yellow { top:calc(var(--header-h)*.67); transform:translate(-50%,-50%); }
-.jewel.purple { left:20.96%; background-image:url('assets/gem-purple.svg'); }
-.jewel.yellow { left:79.99%; background-image:url('assets/gem-yellow.svg'); }
+.jewel.purple { left:20.96%; background-image:url('assets/gem-round-red.svg'); }
+.jewel.yellow { left:79.99%; background-image:url('assets/gem-round-white.svg'); }
 .jewel.red,.jewel.blue,.jewel.green { bottom:calc((var(--footer-h) - var(--gem-size)*1.1)/2); transform:translateX(-50%); }
-.jewel.red { left:3.3%; background-image:url('assets/gem-red.svg'); }
-.jewel.blue { left:50%; background-image:url('assets/gem-blue.svg'); }
-.jewel.green { left:96.5%; background-image:url('assets/gem-green.svg'); }
+.jewel.red { left:3.3%; background-image:url('assets/gem-cut-green.svg'); }
+.jewel.blue { left:50%; background-image:url('assets/gem-oval-blue.svg'); }
+.jewel.green { left:96.5%; background-image:url('assets/gem-cut-yellow.svg'); }
 main { position:relative; z-index:1; padding:8px calc(var(--rail) + 8px) 8px; }
 .grid { align-items:center; justify-items:center; }
 button.card { width:var(--tile-width,100%); height:var(--tile-height,100%); min-height:44px; padding:0; border:0; border-radius:6%; background:none; box-shadow:none; }
@@ -129,3 +129,9 @@ h1 { position:static; transform:none; justify-self:center; width:clamp(90px,24vw
 .gemButton:active .jewel { filter:saturate(.9) brightness(1.12) drop-shadow(0 0 3px #dbc28a); }
 .gemButton:focus-visible { outline:2px solid var(--gold); outline-offset:-2px; }
 @media(max-height:480px) { :root { --footer-h:44px; } .gem-purple,.gem-yellow { top:calc(var(--header-h) - 14px); } }
+
+/* Match the physical gems while retaining their musical button positions. */
+.gemButton .jewel.purple,.gemButton .jewel.yellow { width:var(--gem-size); height:var(--gem-size); background-size:100% 120%; }
+.gemButton .jewel.blue { width:calc(var(--gem-size)*.9); height:calc(var(--gem-size)*1.32); }
+.gemButton .jewel.red,.gemButton .jewel.green { width:calc(var(--gem-size)*.85); height:calc(var(--gem-size)*1.1); }
+.gemButton .jewel::after { display:none; }
